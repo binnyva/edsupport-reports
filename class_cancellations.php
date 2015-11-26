@@ -1,17 +1,15 @@
 <?php
 require('../common.php');
 
-$city_id = i($QUERY,'city_id', 0);
-$center_id = i($QUERY,'center_id', 0);
-$base_date = i($QUERY,'base_date', date('Y-m-d'));
-$year = 2015;
-$year_start = $year . '-04-01 00:00:00';
-$year_end = intval($year+1) . '-03-31 00:00:00';
+$opts = getOptions($QUERY);
+extract($opts);
 
 $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on
 		FROM Class C
 		INNER JOIN Batch B ON B.id=C.batch_id
-		WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND B.year=$year");
+		INNER JOIN Center Ctr ON B.center_id=Ctr.id
+		WHERE B.year=$year AND "
+		. implode(' AND ', $checks));
 
 $template_array = array('total_class' => 0, 'cancelled' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
@@ -24,30 +22,40 @@ foreach ($all_classes as $c) {
 	$class_done[$c['id']] = true;
 	if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-	$datetime1 = date_create($c['class_on']);
-	$datetime2 = date_create(date('Y-m-d'));
-	$interval = date_diff($datetime1, $datetime2);
-	$gap = $interval->format('%a');
+	$index = findWeekIndex($c['class_on']);
 
-	$index = ceil($gap / 7) - 1;
-
-	if($c['status'] != 'projected') {
-		$annual_data['total_class']++;
-		if($index <= 3) $data[$index]['total_class']++;
-
-		if($c['status'] == 'cancelled') {
-			$annual_data['cancelled']++;
-			if($index <= 3) $data[$index]['cancelled']++;
+	if($index <= 3 and $index >= 0) {
+		if($c['status'] != 'projected') {
+			$data[$index]['total_class']++;
+			if($c['status'] == 'cancelled') $data[$index]['cancelled']++;
 		}
 	}
+	if($c['status'] != 'projected') {
+		$annual_data['total_class']++;
+		if($c['status'] == 'cancelled') $annual_data['cancelled']++;
+	}
+
 	$count++;
 	// if($count > 100) break;
 }
 
 foreach($data as $index => $value) {
-	$data[$index]['percentage'] = round($data[$index]['cancelled'] / $data[$index]['total_class'] * 100, 2);
+	if($data[$index]['total_class']) $data[$index]['percentage'] = round($data[$index]['cancelled'] / $data[$index]['total_class'] * 100, 2);
 }
-$annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['total_class'] * 100, 2);
+if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['total_class'] * 100, 2);
 
+$page_title = 'Class Cancellations';
+$weekly_graph_data = array(
+		array('Weekly ' . $page_title, '% of cancelled classes'),
+		array('Four week Back', $data[3]['percentage']),
+		array('Three Week Back',$data[2]['percentage']),
+		array('Two Week Back',	$data[1]['percentage']),
+		array('Last Week',		$data[0]['percentage'])
+	);
+$annual_graph_data = array(
+		array('Year', 'Cancelled'),
+		array('Cancelled',	$annual_data['percentage']),
+		array('Happened',	100 - $annual_data['percentage']),
+	);
 
-render();
+render('graph.php');

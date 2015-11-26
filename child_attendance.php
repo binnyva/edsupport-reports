@@ -1,21 +1,18 @@
 <?php
 require('../common.php');
 
-$city_id = i($QUERY,'city_id', 0);
-$center_id = i($QUERY,'center_id', 0);
-$base_date = i($QUERY,'base_date', date('Y-m-d'));
-$year = 2015;
-$year_start = $year . '-04-01 00:00:00';
-$year_end = intval($year+1) . '-03-31 00:00:00';
+$opts = getOptions($QUERY);
+extract($opts);
 
 $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.student_id, SC.participation, SC.id AS student_class_id
 		FROM Class C
 		INNER JOIN Batch B ON B.id=C.batch_id
+		INNER JOIN Center Ctr ON B.center_id=Ctr.id
 		LEFT JOIN StudentClass SC ON C.id=SC.class_id 
-		WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND C.status='happened' AND B.year=$year
-		ORDER BY C.class_on");
+		WHERE C.status='happened' AND B.year=$year AND "
+		. implode(' AND ', $checks));
 
-$template_array = array('total_class' => 0, 'attendance' => 0);
+$template_array = array('total_class' => 0, 'attendance' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
 $annual_data = $template_array;
 
@@ -26,26 +23,12 @@ foreach ($all_classes as $c) {
 	$class_done[$c['student_class_id']] = true;
 	if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-	$datetime1 = date_create($c['class_on']);
-	$datetime2 = date_create(date('Y-m-d'));
-	$interval = date_diff($datetime1, $datetime2);
-	$gap = $interval->format('%a');
+	$index = findWeekIndex($c['class_on']);
 
-	$index = ceil($gap / 7) - 1;
-	// The above line is same as this...
-	// if($gap < 7) $index = 0;
-	// elseif($gap < 14) $index = 1;
-	// elseif($gap < 21) $index = 2;
-	// elseif($gap < 28) $index = 3;
-	// else $index = 4;
-
-	if($index <= 3) {
+	if($index <= 3 and $index >= 0) {
 		if($c['student_id']) {
 			$data[$index]['total_class']++;
-
-			if($c['participation']) {
-				$data[$index]['attendance']++;
-			}
+			if($c['participation']) $data[$index]['attendance']++;
 		}
 	}
 	if($c['student_id']) {
@@ -58,8 +41,22 @@ foreach ($all_classes as $c) {
 }
 
 foreach($data as $index => $value) {
-	$data[$index]['percentage'] = round($data[$index]['attendance'] / $data[$index]['total_class'] * 100, 2);
+	if($data[$index]['total_class']) $data[$index]['percentage'] = round($data[$index]['attendance'] / $data[$index]['total_class'] * 100, 2);
 }
-$annual_data['percentage'] = round($annual_data['attendance'] / $annual_data['total_class'] * 100, 2);
+if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['attendance'] / $annual_data['total_class'] * 100, 2);
 
-render();
+$page_title = 'Child Attendance';
+$weekly_graph_data = array(
+		array('Weekly ' . $page_title, 'Attendance'),
+		array('Four week Back', $data[3]['percentage']),
+		array('Three Week Back',$data[2]['percentage']),
+		array('Two Week Back',	$data[1]['percentage']),
+		array('Last Week',		$data[0]['percentage'])
+	);
+$annual_graph_data = array(
+		array('Year', 'Attendance'),
+		array('Attended',	$annual_data['percentage']),
+		array('Absent',		100 - $annual_data['percentage']),
+	);
+
+render('graph.php');

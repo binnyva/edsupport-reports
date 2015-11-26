@@ -1,20 +1,18 @@
 <?php
 require('../common.php');
 
-$city_id = i($QUERY,'city_id', 0);
-$center_id = i($QUERY,'center_id', 0);
-$base_date = i($QUERY,'base_date', date('Y-m-d'));
-$year = 2015;
-$year_start = $year . '-04-01 00:00:00';
-$year_end = intval($year+1) . '-03-31 00:00:00';
+$opts = getOptions($QUERY);
+extract($opts);
 
 $all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on
 		FROM Class C
 		INNER JOIN Batch B ON B.id=C.batch_id
+		INNER JOIN Center Ctr ON B.center_id=Ctr.id
 		INNER JOIN UserClass UC ON UC.class_id=C.id
-		WHERE C.class_on>'$year_start' AND C.status='happened' AND C.class_on<'$year_end' AND B.year=$year");
+		WHERE C.status='happened' AND B.year=$year AND "
+		. implode(' AND ', $checks));
 
-$template_array = array('total_class' => 0, 'substitution' => 0);
+$template_array = array('total_class' => 0, 'substitution' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
 $annual_data = $template_array;
 
@@ -25,28 +23,36 @@ foreach ($all_classes as $c) {
 	$class_done[$c['id']] = true;
 	if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-	$datetime1 = date_create($c['class_on']);
-	$datetime2 = date_create(date('Y-m-d'));
-	$interval = date_diff($datetime1, $datetime2);
-	$gap = $interval->format('%a');
-
-	$index = ceil($gap / 7) - 1;
+	$index = findWeekIndex($c['class_on']);
 
 	$annual_data['total_class']++;
-	if($index <= 3) $data[$index]['total_class']++;
+	if($index <= 3 and $index >= 0) $data[$index]['total_class']++;
 
 	if($c['substitute_id']) {
 		$annual_data['substitution']++;
-		if($index <= 3) $data[$index]['substitution']++;
+		if($index <= 3 and $index >= 0) $data[$index]['substitution']++;
 	}
 	$count++;
 	// if($count > 100) break;
 }
 
 foreach($data as $index => $value) {
-	$data[$index]['percentage'] = round($data[$index]['substitution'] / $data[$index]['total_class'] * 100, 2);
+	if($data[$index]['total_class']) $data[$index]['percentage'] = round($data[$index]['substitution'] / $data[$index]['total_class'] * 100, 2);
 }
-$annual_data['percentage'] = round($annual_data['substitution'] / $annual_data['total_class'] * 100, 2);
+if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['substitution'] / $annual_data['total_class'] * 100, 2);
 
+$page_title = 'Substitutions';
+$weekly_graph_data = array(
+		array('Weekly ' . $page_title, '% of Substitutions'),
+		array('Four week Back', $data[3]['percentage']),
+		array('Three Week Back',$data[2]['percentage']),
+		array('Two Week Back', 	$data[1]['percentage']),
+		array('Last Week',   	$data[0]['percentage']),
+	);
+$annual_graph_data = array(
+		array('Year', '% of Substitutions'),
+		array('Substituted Classes',$annual_data['percentage']),
+		array('Regular Classes',	100 - $annual_data['percentage']),
+	);
 
-render();
+render('graph.php');

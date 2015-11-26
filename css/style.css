@@ -1,0 +1,42 @@
+body {
+	/* background-color: #e5002f !important; */
+}
+#header {
+	height: 120px;
+}
+#content {
+	margin-top: 120px;
+}
+
+.tile a {
+ 	height: 200px;
+ 	color: #fff;
+ 	display: block;
+ 	width: 100%;
+ 	font-size:150%;
+ 	font-weight: bold;
+ 	text-align:center;
+ 	text-shadow:#000 1px 1px;
+}
+.tile a:hover {
+ 	text-decoration: none;
+}
+.tile a {
+	padding-top:90px;
+}
+.tile {
+ 	opacity: 0.8;
+}
+.tile:hover {
+	opacity: 1.0;
+}
+.tile:hover a {
+	color: #fff !important;
+}
+
+#select-date-area {
+	display: none;
+}
+#select-date-toggle {
+	margin-left: 100px;
+}

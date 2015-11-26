@@ -3,7 +3,7 @@
 		'modules':[{
 		  'name':'visualization',
 		  'version':'1',
-		  'packages':['line','corechart']
+		  'packages':['corechart']
 		}]
 	  }"></script>
 
@@ -12,17 +12,11 @@
   google.setOnLoadCallback(drawPie);
 
   function drawChart() {
-	var data = google.visualization.arrayToDataTable([
-		['Weekly Class Cancellations', '% of classes cancelled'],
-		['Four week Back', <?php echo $data[3]['percentage'] ?>],
-		['Three Week Back',	<?php echo $data[2]['percentage'] ?>],
-		['Two Week Back', <?php echo $data[1]['percentage'] ?>],
-		['Last Week',   <?php echo $data[0]['percentage'] ?>]
-	]);
+	var data = google.visualization.arrayToDataTable(<?php echo json_encode($weekly_graph_data); ?>);
 
 	// :TODO: Highlight points of the graph
 	var options = {
-		title: 'Weekly Class Cancellations',
+		title: 'Weekly <?php echo $page_title ?>',
 		vAxis: {
 			viewWindow: {
 				max:100,
@@ -32,25 +26,23 @@
 	};
 	
 	var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-	// var chart = new google.charts.Line(document.getElementById('curve_chart'));
 	chart.draw(data, options);
   }
 
 function drawPie() {
-	var data = google.visualization.arrayToDataTable([
-		['Year', '% of class cancelled'],
-		['Cancelled',<?php echo $annual_data['percentage'] ?>],
-		['Happened',	<?php echo 100 - $annual_data['percentage'] ?>],
-	]);
+	var data = google.visualization.arrayToDataTable(<?php echo json_encode($annual_graph_data); ?>);
 
 	var options = {
-		title: 'Annual Class Cancellations',
+		title: 'Annual <?php echo $page_title ?>',
 	};
 	var chart = new google.visualization.PieChart(document.getElementById('pie_chart'));
 	chart.draw(data, options);
   }
-
-
 </script>
+
+<h1><?php echo $page_title ?></h1>
+
+<?php include('_filter.php'); ?>
+
 <div id="curve_chart" style="width: 60%; height: 300px; float:left;"></div>
 <div id="pie_chart" style="width: 35%; height: 300px; float:left;"></div>
