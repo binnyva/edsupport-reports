@@ -75,8 +75,8 @@ $weekly_graph_data = array(
 $annual_graph_data = array(
 		array('Year', '% of child Participation'),
 		array('Level 4 and above', $annual_data['percentage_5'] + $annual_data['percentage_4']),
-		array('Level 3', $annual_data['percentage_3']),
 		array('Level 2 or below', $annual_data['percentage_1'] + $annual_data['percentage_2']),
+		array('Level 3', $annual_data['percentage_3']),
 	);
 
 render('graph.php');

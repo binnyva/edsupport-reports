@@ -51,8 +51,8 @@ $weekly_graph_data = array(
 	);
 $annual_graph_data = array(
 		array('Year', '% of Substitutions'),
-		array('Substituted Classes',$annual_data['percentage']),
 		array('Regular Classes',	100 - $annual_data['percentage']),
+		array('Substituted Classes',$annual_data['percentage']),
 	);
 
 render('graph.php');

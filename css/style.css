@@ -40,3 +40,14 @@ body {
 #select-date-toggle {
 	margin-left: 100px;
 }
+
+#curve_chart {
+	width: 60%; 
+	height: 300px; 
+	float:left;
+}
+#pie_chart {
+	width: 35%; 
+	height: 300px; 
+	float:left;
+}

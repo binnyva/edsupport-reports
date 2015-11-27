@@ -8,9 +8,8 @@
 	  }"></script>
 
 <script type="text/javascript">
+  <?php if($weekly_graph_data) { ?>
   google.setOnLoadCallback(drawChart);
-  google.setOnLoadCallback(drawPie);
-
   function drawChart() {
 	var data = google.visualization.arrayToDataTable(<?php echo json_encode($weekly_graph_data); ?>);
 
@@ -28,21 +27,28 @@
 	var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 	chart.draw(data, options);
   }
+  <?php } ?>
 
+google.setOnLoadCallback(drawPie);
 function drawPie() {
 	var data = google.visualization.arrayToDataTable(<?php echo json_encode($annual_graph_data); ?>);
 
 	var options = {
 		title: 'Annual <?php echo $page_title ?>',
+		slices: {
+            0: { color: 'green' },
+            1: { color: 'red' },
+            2: { color: 'blue' }
+          }
 	};
 	var chart = new google.visualization.PieChart(document.getElementById('pie_chart'));
 	chart.draw(data, options);
   }
 </script>
 
-<h1><?php echo $page_title ?></h1>
+<h1><?php echo $page_title ?> Report</h1>
 
 <?php include('_filter.php'); ?>
 
-<div id="curve_chart" style="width: 60%; height: 300px; float:left;"></div>
-<div id="pie_chart" style="width: 35%; height: 300px; float:left;"></div>
+<div id="curve_chart"></div>
+<div id="pie_chart"></div>

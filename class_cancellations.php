@@ -54,8 +54,8 @@ $weekly_graph_data = array(
 	);
 $annual_graph_data = array(
 		array('Year', 'Cancelled'),
-		array('Cancelled',	$annual_data['percentage']),
 		array('Happened',	100 - $annual_data['percentage']),
+		array('Cancelled',	$annual_data['percentage']),
 	);
 
 render('graph.php');
