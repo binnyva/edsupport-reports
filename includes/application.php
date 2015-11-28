@@ -3,7 +3,6 @@ require('../support/includes/application.php');
 
 $template->addResource(joinPath($config['site_url'], 'bower_components/jquery-ui/ui/minified/jquery-ui.min.js'), 'js', true);
 $template->addResource(joinPath($config['site_url'], 'bower_components/jquery-ui/themes/base/minified/jquery-ui.min.css'), 'css', true);
-//t/x/Data/www/Sites/community/makeadiff/makeadiff.in/bower_components/jquery-ui/themes/base/minified/jquery-ui.min.css
 
 function getOptions($QUERY) {
 	$city_id = i($QUERY,'city_id', 0);
