@@ -11,7 +11,7 @@ $all_users = $sql->getAll("SELECT U.id, U.credit
 		INNER JOIN UserGroup UG ON UG.user_id=U.id
 		INNER JOIN UserBatch UB ON UB.user_id=U.id
 		INNER JOIN Batch B ON B.id=UB.batch_id
-		INNER JOIN Center C ON C.id=B.center_id
+		INNER JOIN Center Ctr ON Ctr.id=B.center_id
 		WHERE U.status='1' AND UG.group_id=9 AND "
 		. implode(' AND ', $checks));
 
