@@ -11,15 +11,12 @@ $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on
 		WHERE B.year=$year AND "
 		. implode(' AND ', $checks));
 
-$template_array = array('total_class' => 0, 'cancelled' => 0);
+$template_array = array('total_class' => 0, 'cancelled' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
 $annual_data = $template_array;
 
-$class_done = array();
 $count = 0;
 foreach ($all_classes as $c) {
-	if(isset($class_done[$c['id']])) continue; // If data is already marked, skip.
-	$class_done[$c['id']] = true;
 	if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
 	$index = findWeekIndex($c['class_on']);
@@ -57,5 +54,8 @@ $annual_graph_data = array(
 		array('Happened',	100 - $annual_data['percentage']),
 		array('Cancelled',	$annual_data['percentage']),
 	);
+
+unset($opts['checks']);
+$listing_link = getLink('class_cancellation_listing.php', $opts);
 
 render('graph.php');
