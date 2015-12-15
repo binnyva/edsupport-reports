@@ -68,5 +68,9 @@ $annual_graph_data = array(
 		array('Regular Classes',	100 - $annual_data['percentage']),
 		array('Substituted Classes',$annual_data['percentage']),
 	);
+$colors = array('green', 'red');
+
+unset($opts['checks']);
+$listing_link = getLink('substitutions_listing.php', $opts);
 
 render('graph.php');

@@ -65,6 +65,7 @@ $annual_graph_data = array(
 		array('Happened',	100 - $annual_data['percentage']),
 		array('Cancelled',	$annual_data['percentage']),
 	);
+$colors = array('green', 'red');
 
 unset($opts['checks']);
 $listing_link = getLink('class_cancellation_listing.php', $opts);

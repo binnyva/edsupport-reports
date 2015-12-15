@@ -15,6 +15,8 @@ $all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.clas
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $sql_checks));
 
+$adoption = getAdoptionData('volunteer', $checks);
+
 $template_array = array('total_class' => 0, 'zero_hour_attendance' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
 $national = $data;
@@ -56,16 +58,18 @@ if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data[
 
 $page_title = 'Zero Hour Attendance';
 $weekly_graph_data = array(
-		array('Weekly ' . $page_title, '% of Zero Hour Attendance', 'National Average'),
-		array('Four week Back', $data[3]['percentage'], $national[3]['percentage']),
-		array('Three Week Back',$data[2]['percentage'], $national[2]['percentage']),
-		array('Two Week Back', 	$data[1]['percentage'], $national[1]['percentage']),
-		array('Last Week',   	$data[0]['percentage'], $national[0]['percentage'])
-	);
+	array('Weekly ' . $page_title, '% of Zero Hour Attendance', 'National Average'),
+	array('Four week Back', $data[3]['percentage'], $national[3]['percentage']),
+	array('Three Week Back',$data[2]['percentage'], $national[2]['percentage']),
+	array('Two Week Back', 	$data[1]['percentage'], $national[1]['percentage']),
+	array('Last Week',   	$data[0]['percentage'], $national[0]['percentage'])
+);
+
 $annual_graph_data = array(
 		array('Year', '% of Zero Hour Attended'),
 		array('Zero Hour Attended',	$annual_data['percentage']),
 		array('Zero Hour Missed',	100 - $annual_data['percentage']),
 	);
+$colors = array('green', 'red');
 
 render('graph.php');

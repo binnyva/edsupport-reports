@@ -15,6 +15,8 @@ $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.s
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $sql_checks));
 
+$adoption = getAdoptionData('student', $checks);
+
 $template_array = array('total_class' => 0, 'attendance' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
 $national = $data;
@@ -59,16 +61,18 @@ if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data[
 
 $page_title = 'Child Attendance';
 $weekly_graph_data = array(
-		array('Weekly ' . $page_title, 'Attendance', 'National Average'),
-		array('Four week Back', $data[3]['percentage'], $national[3]['percentage']),
-		array('Three Week Back',$data[2]['percentage'], $national[2]['percentage']),
-		array('Two Week Back',	$data[1]['percentage'], $national[1]['percentage']),
-		array('Last Week',		$data[0]['percentage'], $national[0]['percentage'])
-	);
+	array('Weekly ' . $page_title, 'Attendance', 'National Average'),
+	array('Four week Back', $data[3]['percentage'], $national[3]['percentage']),
+	array('Three Week Back',$data[2]['percentage'], $national[2]['percentage']),
+	array('Two Week Back',	$data[1]['percentage'], $national[1]['percentage']),
+	array('Last Week',		$data[0]['percentage'], $national[0]['percentage'])
+);
+
 $annual_graph_data = array(
 		array('Year', 'Attendance'),
 		array('Attended',	$annual_data['percentage']),
 		array('Absent',		100 - $annual_data['percentage']),
 	);
+$colors = array('green', 'red');
 
 render('graph.php');

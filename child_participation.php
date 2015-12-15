@@ -63,20 +63,17 @@ for ($i=1; $i<=5; $i++) {
 $page_title = 'Child Participation';
 $weekly_graph_data = array(
 		array('Weekly ' . $page_title, '% of level 4 and above', 	'% of level 3', '% of level 2 and below'),
-		array('Four week Back', $data[3]['percentage_5'] + $data[3]['percentage_4'], 
-				$data[3]['percentage_3'], $data[3]['percentage_1'] + $data[3]['percentage_2']),
-		array('Three Week Back', $data[2]['percentage_5'] + $data[2]['percentage_4'], 
-				$data[2]['percentage_3'], $data[2]['percentage_1'] + $data[2]['percentage_2']),
-		array('Two Week Back', $data[1]['percentage_5'] + $data[1]['percentage_4'], 
-				$data[1]['percentage_3'], $data[1]['percentage_1'] + $data[1]['percentage_2']),
-		array('Last Week', $data[0]['percentage_5'] + $data[0]['percentage_4'], 
-				$data[0]['percentage_3'], $data[0]['percentage_1'] + $data[0]['percentage_2'])
+		array('Four week Back',	$data[3]['percentage_5'] + $data[3]['percentage_4'], $data[3]['percentage_3'], $data[3]['percentage_1'] + $data[3]['percentage_2']),
+		array('Three Week Back',$data[2]['percentage_5'] + $data[2]['percentage_4'], $data[2]['percentage_3'], $data[2]['percentage_1'] + $data[2]['percentage_2']),
+		array('Two Week Back',	$data[1]['percentage_5'] + $data[1]['percentage_4'], $data[1]['percentage_3'], $data[1]['percentage_1'] + $data[1]['percentage_2']),
+		array('Last Week',		$data[0]['percentage_5'] + $data[0]['percentage_4'], $data[0]['percentage_3'], $data[0]['percentage_1'] + $data[0]['percentage_2'])
 	);
 $annual_graph_data = array(
 		array('Year', '% of child Participation'),
 		array('Level 4 and above', $annual_data['percentage_5'] + $annual_data['percentage_4']),
-		array('Level 2 or below', $annual_data['percentage_1'] + $annual_data['percentage_2']),
 		array('Level 3', $annual_data['percentage_3']),
+		array('Level 2 or below', $annual_data['percentage_1'] + $annual_data['percentage_2']),
 	);
+$colors = array('green', 'orange', 'red');
 
 render('graph.php');

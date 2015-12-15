@@ -32,10 +32,16 @@ $page_title = 'Volunteer Credits';
 $weekly_graph_data = false;
 $annual_graph_data = array(
 		array('Year', 'Credit Status'),
-		array('Three or More',	$annual_data['three_or_more_percentage'] ),
 		array('Zero Or Below',	$annual_data['zero_or_below_percentage'] ),
 		array('One/Two Credit',	$annual_data['one_or_two_percentage'] ),
+		array('Three or More',	$annual_data['three_or_more_percentage'] ),
 	);
+$colors = array('red', 'orange', 'green');
+
+unset($opts['checks']);
+unset($checks['from']);
+unset($checks['to']);
+$listing_link = getLink('volunteer_credits_listing.php', $opts);
 
 $template->addResource('volunteer_credits.css', 'css');
 render('graph.php');

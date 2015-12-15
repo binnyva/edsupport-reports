@@ -25,6 +25,42 @@ function getOptions($QUERY) {
 		);
 }
 
+function getAdoptionData($type, $checks) {
+	global $sql;
+
+	if($type == 'volunteer') {
+		$adoption_data = $sql->getCol("SELECT C.status
+					FROM Class C
+					INNER JOIN Batch B ON B.id=C.batch_id
+					INNER JOIN Center Ctr ON Ctr.id=B.center_id
+					INNER JOIN UserClass UC ON C.id=UC.class_id
+					WHERE " . implode(' AND ', $checks));
+
+		$adoption = array('data' => 0, 'no_data' => 0);
+		foreach ($adoption_data as $value) {
+			$type = 'data';
+			if($value == 'projected') $type = 'no_data';
+			$adoption[$type]++;
+		}
+	} else {
+		$adoption_data = $sql->getCol("SELECT SC.present
+					FROM Class C
+					INNER JOIN Batch B ON B.id=C.batch_id
+					INNER JOIN Center Ctr ON Ctr.id=B.center_id
+					INNER JOIN UserClass UC ON C.id=UC.class_id
+					LEFT JOIN StudentClass SC ON C.id=SC.class_id 
+					WHERE " . implode(' AND ', $checks));
+		$adoption = array('data' => 0, 'no_data' => 0);
+		foreach ($adoption_data as $value) {
+			$type = 'data';
+			if($value === '1' or $value === '0') $type = 'no_data';
+			$adoption[$type]++;
+		}
+	}
+
+	return $adoption;
+}
+
 /// Groups into weeks. If the class happened last week, index will be 0. One week ago will 1, two weeks returns 2 and so on.
 function findWeekIndex($class_on) {
 	$datetime1 = date_create($class_on);
