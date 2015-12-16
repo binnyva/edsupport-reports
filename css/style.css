@@ -51,3 +51,15 @@ body {
 	height: 300px; 
 	float:left;
 }
+
+#progress div {
+	float:left;
+	color: #fff;
+	padding: 2px;
+	height:23px;
+}
+#progress {
+	border:1px solid #000;
+	height:25px;
+	border-radius: 5px;
+}

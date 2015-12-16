@@ -14,6 +14,7 @@ $all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.clas
 		INNER JOIN UserClass UC ON UC.class_id=C.id
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $sql_checks));
+$adoption = getAdoptionData('volunteer', $checks);
 
 $template_array = array('total_class' => 0, 'substitution' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);

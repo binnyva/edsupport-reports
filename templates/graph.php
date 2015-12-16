@@ -37,7 +37,7 @@ if(!$city_id and !$center_id and
 	
 	var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 	chart.draw(data, options);
-  }
+  } 
   <?php } ?>
 
 google.setOnLoadCallback(drawPie);
@@ -61,7 +61,15 @@ function drawPie() {
 
 <?php include('_filter.php'); ?>
 
+<?php if(isset($adoption)) { ?>
+<div id="progress">
+<div id="data" style="width:<?php echo $adoption ?>%; background-color: green;">Adoption Persentage: <?php echo $adoption ?>%</div>
+<div id="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: red;">&nbsp;</div>
+</div>
+<?php } ?>
+
 <div id="curve_chart"></div>
 <div id="pie_chart"></div>
 
-<br /><?php if(isset($listing_link)) echo "<a href='$listing_link'>List All</a>";
+<br /><?php
+if(isset($listing_link)) echo "<a href='$listing_link'>List All</a>";

@@ -58,7 +58,9 @@ function getAdoptionData($type, $checks) {
 		}
 	}
 
-	return $adoption;
+	$presentage = intval($adoption['data'] / ($adoption['data'] + $adoption['no_data']) * 100);
+
+	return $presentage;
 }
 
 /// Groups into weeks. If the class happened last week, index will be 0. One week ago will 1, two weeks returns 2 and so on.
