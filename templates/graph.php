@@ -72,4 +72,4 @@ function drawPie() {
 <div id="pie_chart"></div>
 
 <br /><?php
-if(isset($listing_link)) echo "<a href='$listing_link'>List All</a>";
+if(isset($listing_link)) echo "<a href='$listing_link'>" . (isset($listing_text) ? $listing_text : 'List All') . "</a>";
