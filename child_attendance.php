@@ -1,5 +1,6 @@
 <?php
 require('../common.php');
+ini_set('memory_limit','256M');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -14,6 +15,7 @@ $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.s
 		LEFT JOIN StudentClass SC ON C.id=SC.class_id 
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $sql_checks));
+// file_put_contents('json/child_attendance_data.json', json_encode($all_classes));
 
 $adoption = getAdoptionData('student', $checks);
 

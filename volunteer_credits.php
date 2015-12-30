@@ -43,7 +43,7 @@ unset($opts['checks']);
 unset($checks['from']);
 unset($checks['to']);
 $listing_link = getLink('volunteer_credits_listing.php', $opts);
-$listing_text = 'List All Volunteer with Zero or less credits';
+$listing_text = 'List All Volunteer with Zero credits or less';
 
 $template->addResource('volunteer_credits.css', 'css');
 render('graph.php');

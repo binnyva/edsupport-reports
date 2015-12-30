@@ -70,5 +70,6 @@ $colors = array('green', 'red');
 
 unset($opts['checks']);
 $listing_link = getLink('class_cancellation_listing.php', $opts);
+$listing_text = "List Cancelled Classes";
 
 render('graph.php');
