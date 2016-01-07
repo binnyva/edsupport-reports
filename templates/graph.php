@@ -63,8 +63,8 @@ function drawPie() {
 
 <?php if(isset($adoption)) { ?>
 <div id="progress">
-<div id="data" style="width:<?php echo $adoption ?>%; background-color: green;">Adoption Persentage: <?php echo $adoption ?>%</div>
-<div id="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: red;">&nbsp;</div>
+<?php if($adoption) { ?><div id="data" style="width:<?php echo $adoption ?>%; background-color: green;">Adoption Persentage: <?php echo $adoption ?>%</div><?php } ?>
+<?php if(100-$adoption) { ?><div id="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: red;">&nbsp;</div><?php } ?>
 </div>
 <?php } ?>
 <br /><?php

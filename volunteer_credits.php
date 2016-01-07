@@ -14,7 +14,8 @@ $all_users = $sql->getAll("SELECT U.id, U.credit
 		INNER JOIN Center Ctr ON Ctr.id=B.center_id
 		WHERE U.status='1' AND UG.group_id=9 AND "
 		. implode(' AND ', $checks));
-$adoption = getAdoptionData('volunteer', $checks);
+
+$adoption = getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, 'volunteer');
 
 $annual_data = array('total_teachers' => 0, 'zero_or_below' => 0, 'one_or_two' => 0, 'three_or_more' => 0);
 

@@ -15,7 +15,7 @@ $all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.clas
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $sql_checks));
 
-$adoption = getAdoptionData('volunteer', $checks);
+$adoption = getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, 'volunteer');
 
 $template_array = array('total_class' => 0, 'zero_hour_attendance' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);

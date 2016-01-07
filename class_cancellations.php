@@ -13,7 +13,7 @@ $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.
 		INNER JOIN Center Ctr ON B.center_id=Ctr.id
 		WHERE B.year=$year AND "
 		. implode(' AND ', $sql_checks));
-$adoption = getAdoptionData('volunteer', $checks);
+$adoption = getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, 'volunteer');
 
 $template_array = array('total_class' => 0, 'cancelled' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);

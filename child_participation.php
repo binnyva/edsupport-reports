@@ -11,7 +11,7 @@ $all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.s
 		LEFT JOIN StudentClass SC ON C.id=SC.class_id 
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $checks));
-$adoption = getAdoptionData('student', $checks);
+$adoption = getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, 'student');
 
 $template_array = array('total_class' => 0, 'attendance' => 0, 
 		'participation_5' => 0, 'participation_4' => 0, 'participation_3' => 0, 'participation_2' => 0, 'participation_1' => 0);

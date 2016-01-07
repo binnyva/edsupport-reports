@@ -8,16 +8,26 @@ extract($opts);
 $sql_checks = $checks;
 unset($sql_checks['city_id']);  // We want everything - because we need to calculate national avg as well.
 unset($sql_checks['center_id']);
-$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.student_id, SC.participation, SC.id AS student_class_id, Ctr.city_id, B.center_id
-		FROM Class C
-		INNER JOIN Batch B ON B.id=C.batch_id
-		INNER JOIN Center Ctr ON B.center_id=Ctr.id
-		LEFT JOIN StudentClass SC ON C.id=SC.class_id 
-		WHERE C.status='happened' AND B.year=$year AND "
-		. implode(' AND ', $sql_checks));
-// file_put_contents('json/child_attendance_data.json', json_encode($all_classes));
 
-$adoption = getAdoptionData('student', $checks);
+// Cacheing enabled only for standand date ranges.
+if($from == '2015-06-01' and $to == date('Y-m-d')) {
+	$mem = new Memcached();
+	$mem->addServer("127.0.0.1", 11211);
+	$all_classes = $mem->get("MadappReports:child_attendance/all_classes#$city_id,$center_id");
+}
+
+if(!$all_classes) {
+	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.student_id, SC.participation, SC.id AS student_class_id, Ctr.city_id, B.center_id
+			FROM Class C
+			INNER JOIN Batch B ON B.id=C.batch_id
+			INNER JOIN Center Ctr ON B.center_id=Ctr.id
+			LEFT JOIN StudentClass SC ON C.id=SC.class_id 
+			WHERE C.status='happened' AND B.year=$year AND "
+			. implode(' AND ', $sql_checks));
+	$mem->set("MadappReports:child_attendance/all_classes#$city_id,$center_id", $all_classes) or die("Couldn't cache data.");
+}
+
+$adoption = getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, 'student');
 
 $template_array = array('total_class' => 0, 'attendance' => 0, 'percentage' => 0);
 $data = array($template_array, $template_array, $template_array, $template_array);
