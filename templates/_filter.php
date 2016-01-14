@@ -1,7 +1,9 @@
 <?php
 $centers = array('0' => array('Any'));
 foreach ($all_centers as $this_center_id => $center) {
-	if(!isset($centers[$center['city_id']])) $centers[$center['city_id']] = array('Any');
+	if(!isset($centers[$center['city_id']])) {
+		$centers[$center['city_id']] = array('0' => 'Any', '-1' => 'All');
+	}
 	$centers[$center['city_id']][$this_center_id] = $center['name'];
 }
 ?>

@@ -87,4 +87,5 @@ $annual_graph_data = array(
 	);
 $colors = array('green', 'red');
 
-render('graph.php');
+// render('graph.php');
+render('csv.php');
