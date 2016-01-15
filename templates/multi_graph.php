@@ -1,5 +1,6 @@
 <?php
 if(!isset($colors)) $colors = array('#e74c3c', '#f1c40f', '#16a085'); // Red , Orange, Green
+$adoption_colors = array('#e74c3c', '#16a085'); // Red , Green
 
 // If no city or center is selected, don't show the national average. That is whats shown by default.
 if(!$city_id and !$center_id and 
@@ -29,7 +30,7 @@ var data = google.visualization.arrayToDataTable(<?php echo json_encode($weekly_
 
 // :TODO: Highlight points of the graph
 var options = {
-	title: 'Weekly <?php echo $page_title; if($center_name) echo " for $center_name"; ?>',
+	title: 'Weekly <?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
 	vAxis: {
 		viewWindow: {
 			max:100,
@@ -62,14 +63,14 @@ google.setOnLoadCallback(function () {
 <h3><?php echo $page_title; if($center_name) echo " for $center_name"; ?></h3>
 
 <?php if(isset($adoption)) { ?>
-<div id="progress">
-<?php if($adoption) { ?><div id="data" style="width:<?php echo $adoption ?>%; background-color: <?php echo $colors[2] ?>;">Adoption Percentage: <?php echo $adoption ?>%</div><?php } ?>
-<?php if(100-$adoption) { ?><div id="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: <?php echo $colors[0] ?>;">&nbsp;</div><?php } ?>
+<div class="progress">
+<?php if($adoption) { ?><div class="data" style="width:<?php echo $adoption ?>%; background-color: <?php echo $adoption_colors[1] ?>;">Adoption Percentage: <?php echo $adoption ?>%</div><?php } ?>
+<?php if(100-$adoption) { ?><div class="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: <?php echo $adoption_colors[0] ?>;">&nbsp;</div><?php } ?>
 </div>
 <?php } ?>
 <br /><?php
 if(isset($listing_link)) echo "<a href='$listing_link'>" . (isset($listing_text) ? $listing_text . (($center_name) ? " for $center_name" : "") : 'List All') . "</a><br />";
 ?>
-<div id="curve_chart_<?php echo $center_id ?>"></div>
-<div id="pie_chart_<?php echo $center_id ?>"></div>
+<div id="curve_chart_<?php echo $center_id ?>" class="curve_chart"></div>
+<div id="pie_chart_<?php echo $center_id ?>" class="pie_chart"></div><br />
 <?php } ?>

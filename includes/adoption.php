@@ -1,6 +1,11 @@
 <?php
 function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, $data_type) {
-	$data = getAdoptionData($city_id, $center_id, $all_cities, $all_centers);
+	list($adoption_data, $cache_key) = getCacheAndKey('adoption_data', array($city_id, $center_id, $data_type));
+
+	if(!$adoption_data) {
+		$adoption_data = getAdoptionData($city_id, $center_id, $all_cities, $all_centers);
+		setCache($cache_key, $adoption_data);
+	}
 
 	if(!$city_id and !$center_id) {
 		$info = array(
@@ -9,16 +14,16 @@ function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_cente
             'student_attendance' => 0
 		);
 
-		foreach ($data['all_cities_data'] as $city_id => $city_info) {
+		foreach ($adoption_data['all_cities_data'] as $city_id => $city_info) {
 			$info['classes_total'] += $city_info['classes_total'];
 			$info['volunteer_attendance'] += $city_info['volunteer_attendance'];
 			$info['student_attendance'] += $city_info['student_attendance'];
 		}
 
 	} else if($city_id and !$center_id) {
-		$info = $data['all_cities_data'][$city_id];
+		$info = $adoption_data['all_cities_data'][$city_id];
 	} else if($center_id) {
-		$info = $data['all_centers_data'][$center_id];
+		$info = $adoption_data['all_centers_data'][$center_id];
 	}
 
 	$percent = ceil ($info[$data_type.'_attendance'] / $info['classes_total'] * 100);

@@ -12,8 +12,14 @@ else $all_centers_in_city = array($center_id);
 
 $data = array();
 foreach ($all_centers_in_city as $this_center_id) {
-	$opts['center_id'] = $this_center_id;
-	$checks['center_id'] = "Ctr.id=$this_center_id";
+	if($this_center_id) {
+		$opts['center_id'] = $this_center_id;
+		$checks['center_id'] = "Ctr.id=$this_center_id";
+	} else {
+		$opts['center_id'] = $this_center_id;
+		unset($checks['center_id']);
+	}
+
 	$all_users = cacheQuery("SELECT U.id, U.credit 
 			FROM User U
 			INNER JOIN UserGroup UG ON UG.user_id=U.id

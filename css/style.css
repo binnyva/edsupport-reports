@@ -41,24 +41,24 @@ body {
 	margin-left: 100px;
 }
 
-#curve_chart {
+.curve_chart {
 	width: 60%; 
 	height: 300px; 
 	float:left;
 }
-#pie_chart {
+.pie_chart {
 	width: 35%; 
 	height: 300px; 
 	float:left;
 }
 
-#progress div {
+.progress div {
 	float:left;
 	color: #fff;
 	padding: 2px;
 	height:23px;
 }
-#progress {
+.progress {
 	border:1px solid #2c3e50;
 	height:25px;
 	border-radius: 5px;

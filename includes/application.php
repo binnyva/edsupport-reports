@@ -1,5 +1,6 @@
 <?php
 require('../support/includes/application.php');
+$sql->options['stripslashes'] = false;
 require('includes/adoption.php');
 
 $year = 2015;
@@ -32,9 +33,17 @@ function getOptions($QUERY) {
 		);
 }
 
-function cacheQuery($sql_query, $var_name, $options=array(), $query_return_type = 'all') {
-	global $mem, $config, $sql;
-	$cache_expire = 60 * 60;
+function getCacheKey($var_name, $options=array(), $backtrace = false) {
+	global $config;
+
+	if(!$backtrace) $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
+	$key = unformat($config['site_title']) . ":" . basename($backtrace[0]['file'], '.php') . "/$var_name";
+	
+	if($options) $key .= str_replace("amp;", '', getLink("", $options));
+	return $key;
+}
+function getCacheAndKey($var_name, $options=array(), $backtrace = false) {
+	global $mem, $sql;
 
 	if(!$mem) {
 		$mem = new Memcached();
@@ -42,15 +51,37 @@ function cacheQuery($sql_query, $var_name, $options=array(), $query_return_type 
 	}
 
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-	$key = unformat($config['site_title']) . ":" . basename($backtrace[0]['file'], '.php') . "/$var_name";
-	
-	if($options) $key .= str_replace("amp;", '', getLink("", $options));
+	$key = getCacheKey($var_name, $options, $backtrace);
 
-	$cached_data = $mem->get($key);
+	return array($mem->get($key), $key);
+}
+
+function getCache($var_name, $options=array(), $backtrace = false) {
+	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
+	list($cache_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);
+	return $cached_data;
+}
+function setCache($cache_key, $data) {
+	global $mem;
+	$cache_expire = 60 * 60;
+
+	if(!$mem) {
+		$mem = new Memcached();
+		$mem->addServer("127.0.0.1", 11211);
+	}
+	$mem->set($cache_key, $data, $cache_expire) or die("Error in caching data for $cache_key");
+}
+
+function cacheQuery($sql_query, $var_name, $options=array(), $query_return_type = 'all') {
+	global $mem,  $sql;
+	$cache_expire = 60 * 60;
+
+	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
+	list($cached_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);
 
 	if(!$cached_data) {
 		$cached_data = $sql->query($sql_query, $query_return_type);
-		$mem->set($key, $cached_data, $cache_expire) or die("Error in caching data for $key");
+		setCache($cache_key, $cached_data);
 	}
 
 	return $cached_data;
