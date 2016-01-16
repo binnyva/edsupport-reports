@@ -14,6 +14,7 @@ list($data, $cache_key) = getCacheAndKey('data', $opts);
 
 if(!$data) {
 	$data = array();
+	$cache_status = false;
 
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
@@ -30,7 +31,19 @@ if(!$data) {
 		LEFT JOIN StudentClass SC ON C.id=SC.class_id 
 		WHERE C.status='happened' AND B.year=$year AND "
 		. implode(' AND ', $sql_checks) . " ORDER BY class_on DESC");
-	$class_done = array();
+	foreach ($all_classes as $c) {
+		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+
+		$index = findWeekIndex($c['class_on']);
+
+		if($index <= 3 and $index >= 0) {
+			if($c['student_id']) {
+				$national[$index]['total_class']++;
+				if($c['participation']) $national[$index]['attendance']++;
+			}
+		}
+	}
+
 
 	foreach ($all_centers_in_city as $this_center_id) {
 		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
@@ -38,10 +51,7 @@ if(!$data) {
 		$center_data = $data_template;
 		$annual_data = $template_array;
 
-		$count = 0;
 		foreach ($all_classes as $c) {
-			if(isset($class_done[$c['student_class_id']])) continue; // If data is already marked, skip.
-			$class_done[$c['student_class_id']] = true;
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
 			$index = findWeekIndex($c['class_on']);
@@ -52,10 +62,7 @@ if(!$data) {
 						$center_data[$index]['total_class']++;
 						if($c['participation']) $center_data[$index]['attendance']++;
 					}
-					$national[$index]['total_class']++;
-					if($c['participation']) $national[$index]['attendance']++;
 				}
-				$count++;
 			}
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
@@ -92,6 +99,7 @@ if(!$data) {
 		$data[$this_center_id]['center_id'] = $this_center_id;
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
 	}
+	setCache($cache_key, $data);
 }
 
 $colors = array('#16a085', '#e74c3c');

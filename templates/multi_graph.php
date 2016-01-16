@@ -20,7 +20,11 @@ if(!$city_id and !$center_id and
 
 <h1><?php echo $page_title ?> Report</h1>
 
-<?php include('_filter.php'); ?>
+<?php 
+include('_filter.php');
+if($cache_status) echo '<p class="with-icon info">Data shown here comes from cache - it can be up to one hour late.</p>';
+else echo '<p class="with-icon info">Real Time Data...</p>';
+?>
 
 <?php foreach ($data as $center_id => $center_data) { extract($center_data); ?>
 <script type="text/javascript">

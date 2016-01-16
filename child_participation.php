@@ -5,14 +5,15 @@ $opts = getOptions($QUERY);
 extract($opts);
 unset($opts['checks']);
 $sql_checks = $checks;
-unset($sql_checks['city_id']);  // We want everything - because we need to calculate national avg as well.
+unset($sql_checks['city_id']);
 unset($sql_checks['center_id']);
 
 $page_title = 'Child Participation';
 
 list($data, $cache_key) = getCacheAndKey('data', $opts);
 
-if(!$data and $city_id) {
+if(!$data) {
+	$cache_status = false;
 	$data = array();
 
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
@@ -22,13 +23,7 @@ if(!$data and $city_id) {
 			'participation_5' => 0, 'participation_4' => 0, 'participation_3' => 0, 'participation_2' => 0, 'participation_1' => 0,
 			'percentage_5' => 0, 'percentage_4' => 0, 'percentage_3' => 0, 'percentage_2' => 0, 'percentage_1' => 0);
 
-	foreach ($all_centers_in_city as $this_center_id) {
-		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
-		$center_data = array($template_array, $template_array, $template_array, $template_array);
-		$annual_data = $template_array;
-
-		$sql_checks['center_id'] = 'Ctr.id='.$this_center_id;
-		$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.student_id, SC.participation, SC.id AS student_class_id
+	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.student_id, SC.participation, SC.id AS student_class_id, Ctr.id AS center_id, Ctr.city_id
 			FROM Class C
 			INNER JOIN Batch B ON B.id=C.batch_id
 			INNER JOIN Center Ctr ON B.center_id=Ctr.id
@@ -36,11 +31,15 @@ if(!$data and $city_id) {
 			WHERE C.status='happened' AND B.year=$year AND "
 			. implode(' AND ', $sql_checks));
 
-		$count = 0;
+	foreach ($all_centers_in_city as $this_center_id) {
+		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
+		$center_data = array($template_array, $template_array, $template_array, $template_array);
+		$annual_data = $template_array;
+
 		foreach ($all_classes as $c) {
-			if(isset($class_done[$c['student_class_id']])) continue; // If data is already marked, skip.
-			$class_done[$c['student_class_id']] = true;
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+			if($city_id and $c['city_id'] != $city_id) continue;
+			if($this_center_id and $c['center_id'] != $this_center_id) continue;
 
 			$index = findWeekIndex($c['class_on']);
 
@@ -99,10 +98,9 @@ if(!$data and $city_id) {
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
 	}
 
-	setCache('data', $data);
+	setCache($cache_key, $data);
 }
 if(!$data) $data = array();
 
-$page_title = 'Child Participation';
 $colors = array('#16a085', '#f1c40f', '#e74c3c');
 render('multi_graph.php');

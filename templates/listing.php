@@ -9,9 +9,9 @@ foreach ($header as $label) {
 }
 ?></tr>
 
-<?php foreach ($data as $row) { ?>
+<?php $count=0; foreach ($data as $row) { $count++; ?>
 <tr>
-	<td><?php echo implode("</td><td>", array_values($row)) ?></td>
+	<td><?php echo $count ?></td><td><?php echo implode("</td><td>", array_values($row)) ?></td>
 </tr>
 <?php } ?>
 </table>

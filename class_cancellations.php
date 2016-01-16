@@ -13,6 +13,7 @@ $page_title = 'Class Cancellations';
 list($data, $cache_key) = getCacheAndKey('data', $opts);
 
 if(!$data) {
+	$cache_status = false;
 	$data = array();
 
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
@@ -46,7 +47,6 @@ if(!$data) {
 		$center_data = $data_template;
 		$annual_data = $template_array;
 
-		$count = 0;
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 			$index = findWeekIndex($c['class_on']);
@@ -65,9 +65,6 @@ if(!$data) {
 					if($c['status'] == 'cancelled') $annual_data['cancelled']++;
 				}
 			}
-
-			$count++;
-			// if($count > 100) break;
 		}
 
 		foreach($center_data as $index => $value) {
@@ -85,20 +82,21 @@ if(!$data) {
 			);
 		$annual_graph_data = array(
 				array('Year', 'Cancelled'),
-				array('Happened',	100 - $annual_data['percentage']),
-				array('Cancelled',	$annual_data['percentage']),
+				array('Happened',	$annual_data['total_class'] - $annual_data['cancelled']),
+				array('Cancelled',	$annual_data['cancelled']),
 			);
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
 
 		$opts['center_id'] = $this_center_id;
-		$data[$this_center_id]['listing_link'] = getLink('volunteer_credits_listing.php', $opts);
-		$data[$this_center_id]['listing_text'] = 'List All Volunteer with Zero credits or less';
+		$data[$this_center_id]['listing_link'] = getLink('class_cancellation_listing.php', $opts);
+		$data[$this_center_id]['listing_text'] = 'List All Classes that are Cancelled';
 
 		$data[$this_center_id]['center_id'] = $this_center_id;
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
 	}
+	setCache($cache_key, $data);
 }
 
 $colors = array('#16a085', '#e74c3c');
