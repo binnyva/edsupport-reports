@@ -93,6 +93,7 @@ if(!$data) {
 		$data[$this_center_id]['listing_link'] = getLink('class_cancellation_listing.php', $opts);
 		$data[$this_center_id]['listing_text'] = 'List All Classes that are Cancelled';
 
+		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
 	}
