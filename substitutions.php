@@ -97,4 +97,5 @@ if(!$data) {
 
 $colors = array('#16a085', '#e74c3c');
 
-render('multi_graph.php');
+if($format == 'csv') render('csv.php', false);
+else render('multi_graph.php');

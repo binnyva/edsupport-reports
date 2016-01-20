@@ -1,6 +1,5 @@
 <?php
 require('../common.php');
-ini_set('memory_limit','256M');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -44,12 +43,11 @@ if(!$data) {
 		}
 	}
 
-
 	foreach ($all_centers_in_city as $this_center_id) {
-		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
-
 		$center_data = $data_template;
 		$annual_data = $template_array;
+
+		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
 
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
@@ -96,6 +94,7 @@ if(!$data) {
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
 
+		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
 	}
@@ -104,4 +103,6 @@ if(!$data) {
 
 $colors = array('#16a085', '#e74c3c');
 $page_title = 'Child Attendance';
-render('multi_graph.php');
+
+if($format == 'csv') render('csv.php', false);
+else render('multi_graph.php');

@@ -68,4 +68,5 @@ if(!$data) {
 $template->addResource('volunteer_credits.css', 'css');
 $page_title = 'Volunteer Credits';
 
-render('multi_graph.php');
+if($format == 'csv') render('csv.php', false);
+else render('multi_graph.php');

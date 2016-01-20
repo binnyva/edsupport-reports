@@ -18,6 +18,7 @@ function getOptions($QUERY) {
 	$center_id = i($QUERY,'center_id', 0);
 	$from = i($QUERY,'from', '2015-06-01');
 	$to = i($QUERY,'to', date('Y-m-d'));
+	$format = i($QUERY, 'format', 'html');
 
 	$checks = array('true' => '1'); // The 1 to make sure that there will be something - so that there is no extra 'AND' clause.
 	if($city_id) $checks['city_id'] = "Ctr.city_id=$city_id";
@@ -31,6 +32,7 @@ function getOptions($QUERY) {
 		'from'		=> $from,
 		'to'		=> $to,
 		'checks'	=> $checks,
+		'format'	=> $format,
 		);
 }
 
@@ -44,7 +46,7 @@ function getCacheKey($var_name, $options=array(), $backtrace = false) {
 	return $key;
 }
 function getCacheAndKey($var_name, $options=array(), $backtrace = false) {
-	global $mem, $sql;
+	global $mem, $sql, $QUERY;
 
 	if(!$mem) {
 		$mem = new Memcached();
@@ -53,6 +55,8 @@ function getCacheAndKey($var_name, $options=array(), $backtrace = false) {
 
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
 	$key = getCacheKey($var_name, $options, $backtrace);
+
+	if(i($QUERY,'no_cache')) return array(false, $key);
 
 	return array($mem->get($key), $key);
 }

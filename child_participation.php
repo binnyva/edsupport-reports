@@ -60,9 +60,6 @@ if(!$data) {
 					$annual_data['participation_' . $c['participation']]++;
 				}
 			}
-
-			$count++;
-			// if($count > 10) break;
 		}
 
 		foreach($center_data as $index => $value) {
@@ -103,4 +100,6 @@ if(!$data) {
 if(!$data) $data = array();
 
 $colors = array('#16a085', '#f1c40f', '#e74c3c');
-render('multi_graph.php');
+
+if($format == 'csv') render('csv.php', false);
+else render('multi_graph.php');
