@@ -22,11 +22,12 @@ function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_cente
 
 	} else if($city_id and !$center_id) {
 		$info = $adoption_data['all_cities_data'][$city_id];
-	} else if($center_id) {
+	} else if($center_id and isset($adoption_data['all_centers_data'][$center_id])) {
 		$info = $adoption_data['all_centers_data'][$center_id];
 	}
 
-	$percent = ceil ($info[$data_type.'_attendance'] / $info['classes_total'] * 100);
+	$percent = 0;
+	if(isset($info['classes_total']) and $info['classes_total']) $percent = ceil ($info[$data_type.'_attendance'] / $info['classes_total'] * 100);
 
 	return $percent;
 }
