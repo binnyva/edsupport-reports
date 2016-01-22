@@ -75,12 +75,15 @@ if(!$data) {
 				$annual_data['percentage_' . $i] = round($annual_data['participation_' . $i] / $annual_data['attendance'] * 100, 2);
 		}
 
+		$output_data_format = 'percentage';
+		if($format == 'csv') $output_data_format = 'participation';
+
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '% of level 4 and above', 	'% of level 3', '% of level 2 and below'),
-				array('Four week Back',	$center_data[3]['percentage_5'] + $center_data[3]['percentage_4'], $center_data[3]['percentage_3'], $center_data[3]['percentage_1'] + $center_data[3]['percentage_2']),
-				array('Three Week Back',$center_data[2]['percentage_5'] + $center_data[2]['percentage_4'], $center_data[2]['percentage_3'], $center_data[2]['percentage_1'] + $center_data[2]['percentage_2']),
-				array('Two Week Back',	$center_data[1]['percentage_5'] + $center_data[1]['percentage_4'], $center_data[1]['percentage_3'], $center_data[1]['percentage_1'] + $center_data[1]['percentage_2']),
-				array('Last Week',		$center_data[0]['percentage_5'] + $center_data[0]['percentage_4'], $center_data[0]['percentage_3'], $center_data[0]['percentage_1'] + $center_data[0]['percentage_2'])
+				array('Four week Back',	$center_data[3][$output_data_format . '_5'] + $center_data[3][$output_data_format . '_4'], $center_data[3][$output_data_format . '_3'], $center_data[3][$output_data_format . '_1'] + $center_data[3][$output_data_format . '_2']),
+				array('Three Week Back',$center_data[2][$output_data_format . '_5'] + $center_data[2][$output_data_format . '_4'], $center_data[2][$output_data_format . '_3'], $center_data[2][$output_data_format . '_1'] + $center_data[2][$output_data_format . '_2']),
+				array('Two Week Back',	$center_data[1][$output_data_format . '_5'] + $center_data[1][$output_data_format . '_4'], $center_data[1][$output_data_format . '_3'], $center_data[1][$output_data_format . '_1'] + $center_data[1][$output_data_format . '_2']),
+				array('Last Week',		$center_data[0][$output_data_format . '_5'] + $center_data[0][$output_data_format . '_4'], $center_data[0][$output_data_format . '_3'], $center_data[0][$output_data_format . '_1'] + $center_data[0][$output_data_format . '_2'])
 			);
 		$annual_graph_data = array(
 				array('Year', '% of child Participation'),

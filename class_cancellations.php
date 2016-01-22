@@ -73,12 +73,15 @@ if(!$data) {
 		}
 		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['total_class'] * 100, 2);
 
+		$output_data_format = 'percentage';
+		if($format == 'csv') $output_data_format = 'cancelled';
+
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '% of cancelled classes', 'National Average'),
-				array('Four week Back', $center_data[3]['percentage'], $national[3]['percentage']),
-				array('Three Week Back',$center_data[2]['percentage'], $national[2]['percentage']),
-				array('Two Week Back',	$center_data[1]['percentage'], $national[1]['percentage']),
-				array('Last Week',		$center_data[0]['percentage'], $national[0]['percentage'])
+				array('Four week Back', $center_data[3][$output_data_format], $national[3][$output_data_format]),
+				array('Three Week Back',$center_data[2][$output_data_format], $national[2][$output_data_format]),
+				array('Two Week Back',	$center_data[1][$output_data_format], $national[1][$output_data_format]),
+				array('Last Week',		$center_data[0][$output_data_format], $national[0][$output_data_format])
 			);
 		$annual_graph_data = array(
 				array('Year', 'Cancelled'),
