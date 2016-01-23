@@ -110,3 +110,9 @@ function findWeekIndex($class_on) {
 
 	return $index;
 }
+
+function findSundayDate($class_on) {
+	$day = strtotime($class_on);
+	$sunday = date('Y-m-d', $day - (60 * 60 * 24 * date('w', $day)));
+	return $sunday;
+}

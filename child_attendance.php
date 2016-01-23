@@ -9,7 +9,8 @@ unset($sql_checks['city_id']);  // We want everything - because we need to calcu
 unset($sql_checks['center_id']);
 unset($opts['checks']);
 
-list($data, $cache_key) = getCacheAndKey('data', $opts);
+list($data, $cache_key) = getCacheAndKey('data', $opts); $data = array();
+$week_dates = array();
 
 if(!$data) {
 	$data = array();
@@ -55,6 +56,8 @@ if(!$data) {
 			$index = findWeekIndex($c['class_on']);
 
 			if($index <= 3 and $index >= 0) {
+				if(!isset($week_dates[$index])) $week_dates[$index] = findSundayDate($c['class_on']);
+
 				if($c['student_id']) {
 					if((!$this_center_id or ($c['center_id'] == $this_center_id)) and ($city_id <= 0 or ($c['city_id'] == $city_id))) {
 						$center_data[$index]['total_class']++;
@@ -96,6 +99,7 @@ if(!$data) {
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
+		// $data[$this_center_id]['week_dates'] = $week_dates;
 
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
