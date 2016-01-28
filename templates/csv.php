@@ -4,7 +4,7 @@ header("Content-type: text/plain");
 
 $all_cities = $sql->getById("SELECT id, name FROM City");
 
-print "City,Center," . implode(",", $week_dates) . "\n";
+if($header) print "City,Center," . implode(",", $week_dates) . "\n";
 foreach ($data as $center_info) {
 	$csv = array($all_cities[$center_info['city_id']], $center_info['center_name']);
 

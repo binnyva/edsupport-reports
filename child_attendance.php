@@ -9,8 +9,12 @@ unset($sql_checks['city_id']);  // We want everything - because we need to calcu
 unset($sql_checks['center_id']);
 unset($opts['checks']);
 
-list($data, $cache_key) = getCacheAndKey('data', $opts); $data = array();
-$week_dates = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts); //$data = array();
+$week_dates = array(); // Last four sundays
+for($i=0; $i<4; $i++) {
+	$epoch = time() - (24 * 60 * 60 * 7 * $i);
+	$week_dates[$i] = findSundayDate(date('Y-m-d', $epoch));
+}
 
 if(!$data) {
 	$data = array();
@@ -42,6 +46,10 @@ if(!$data) {
 				if($c['participation']) $national[$index]['attendance']++;
 			}
 		}
+
+		foreach($center_data as $index => $value) {
+			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['attendance'] / $national[$index]['total_class'] * 100, 2);
+		}
 	}
 
 	foreach ($all_centers_in_city as $this_center_id) {
@@ -52,11 +60,12 @@ if(!$data) {
 
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+			if(($this_center_id and ($c['center_id'] != $this_center_id)) or ($city_id > 0 and ($c['city_id'] != $city_id))) continue;
 
 			$index = findWeekIndex($c['class_on']);
 
 			if($index <= 3 and $index >= 0) {
-				if(!isset($week_dates[$index])) $week_dates[$index] = findSundayDate($c['class_on']);
+				// if(!isset($week_dates[$index])) $week_dates[$index] = findSundayDate($c['class_on']);
 
 				if($c['student_id']) {
 					if((!$this_center_id or ($c['center_id'] == $this_center_id)) and ($city_id <= 0 or ($c['city_id'] == $city_id))) {
@@ -76,7 +85,6 @@ if(!$data) {
 
 		foreach($center_data as $index => $value) {
 			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['attendance'] / $center_data[$index]['total_class'] * 100, 2);
-			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['attendance'] / $national[$index]['total_class'] * 100, 2);
 		}
 		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['attendance'] / $annual_data['total_class'] * 100, 2);
 
@@ -99,7 +107,8 @@ if(!$data) {
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
-		// $data[$this_center_id]['week_dates'] = $week_dates;
+		krsort($week_dates);
+		$data[$this_center_id]['week_dates'] = $week_dates;
 
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;

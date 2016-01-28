@@ -19,6 +19,7 @@ function getOptions($QUERY) {
 	$from = i($QUERY,'from', '2015-06-01');
 	$to = i($QUERY,'to', date('Y-m-d'));
 	$format = i($QUERY, 'format', 'html');
+	$header = i($QUERY, 'header', '1');
 
 	$checks = array('true' => '1'); // The 1 to make sure that there will be something - so that there is no extra 'AND' clause.
 	if($city_id) $checks['city_id'] = "Ctr.city_id=$city_id";
@@ -33,6 +34,7 @@ function getOptions($QUERY) {
 		'to'		=> $to,
 		'checks'	=> $checks,
 		'format'	=> $format,
+		'header'	=> $header,
 		);
 }
 
