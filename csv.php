@@ -7,6 +7,7 @@ $opts = getOptions($QUERY);
 extract($opts);
 $file = i($QUERY, 'file');
 $opts['file'] = $file;
+unset($opts['checks']);
 
 if(!$file) die("'file' parameter is empty.");
 
