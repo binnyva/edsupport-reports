@@ -10,7 +10,11 @@ unset($sql_checks['center_id']);
 unset($opts['checks']);
 
 $page_title = 'Class Cancellations';
-list($data, $cache_key) = getCacheAndKey('data', $opts);
+list($data, $cache_key) = getCacheAndKey('data', $opts); $data = array();
+
+$output_data_format = 'percentage';
+if($format == 'csv') $output_data_format = 'cancelled';
+$output_total_format = 'total_class';
 
 if(!$data) {
 	$cache_status = false;
@@ -19,8 +23,9 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'percentage' => 0);
-	$data_template = array($template_array, $template_array, $template_array, $template_array);
+	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$data_template = array($template_array, $template_array, $template_array, $template_array, $template_array);
+	$center_data = $data_template;
 	$national = $data_template;
 
 	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, B.center_id
@@ -28,22 +33,24 @@ if(!$data) {
 			INNER JOIN Batch B ON B.id=C.batch_id
 			INNER JOIN Center Ctr ON B.center_id=Ctr.id
 			WHERE B.year=$year AND "
-			. implode(' AND ', $sql_checks));
+			. implode(' AND ', $sql_checks) . " ORDER BY C.class_on DESC");
 
 	foreach ($all_classes as $c) {
 		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 		$index = findWeekIndex($c['class_on']);
+		
+		if(!isset($national[$index])) $national[$index] = $template_array;
+		$national[$index]['total_class']++;
+		if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
+		elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
 
-		if($index <= 3 and $index >= 0) {
-			if($c['status'] != 'projected') {
-				$national[$index]['total_class']++;
-				if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
-			}
+		foreach($center_data as $index => $value) {
+			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['total_class'] * 100, 2);
 		}
 	}
 
 	foreach ($all_centers_in_city as $this_center_id) {
-		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+		if($format != 'csv') $data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
 		$center_data = $data_template;
 		$annual_data = $template_array;
 
@@ -51,30 +58,29 @@ if(!$data) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 			$index = findWeekIndex($c['class_on']);
 
-			if($index <= 3 and $index >= 0) {
-				if($c['status'] != 'projected') {
-					if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
-						$center_data[$index]['total_class']++;
-						if($c['status'] == 'cancelled') $center_data[$index]['cancelled']++;
-					}
-				}
-			}
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
-				if($c['status'] != 'projected') {
-					$annual_data['total_class']++;
-					if($c['status'] == 'cancelled') $annual_data['cancelled']++;
-				}
+				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
+
+				$center_data[$index]['total_class']++;
+				if($c['status'] == 'cancelled') $center_data[$index]['cancelled']++;
+				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
+			}
+
+			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
+				$annual_data['total_class']++;
+				if($c['status'] == 'cancelled') $annual_data['cancelled']++;
+				elseif($c['status'] == 'projected') $annual_data['unmarked']++;
 			}
 		}
 
 		foreach($center_data as $index => $value) {
 			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['cancelled'] / $center_data[$index]['total_class'] * 100, 2);
-			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['total_class'] * 100, 2);
 		}
 		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['total_class'] * 100, 2);
 
 		$output_data_format = 'percentage';
 		if($format == 'csv') $output_data_format = 'cancelled';
+		$output_unmarked_format = 'unmarked';
 
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '% of cancelled classes', 'National Average'),
@@ -91,6 +97,9 @@ if(!$data) {
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
+		
+		$data[$this_center_id]['week_dates'] = $week_dates;
+		$data[$this_center_id]['center_data'] = $center_data;
 
 		$opts['center_id'] = $this_center_id;
 		$data[$this_center_id]['listing_link'] = getLink('class_cancellation_listing.php', $opts);

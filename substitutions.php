@@ -10,7 +10,16 @@ unset($sql_checks['center_id']);
 unset($opts['checks']);
 
 $page_title = 'Substitutions';
-list($data, $cache_key) = getCacheAndKey('data', $opts); //* If you want to clear Cache */ $data = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts); /* If you want to clear Cache */ $data = array();
+
+$output_data_format = 'percentage';
+if($format == 'csv') $output_data_format = 'substitution';
+$output_total_format = 'total_class';
+$output_unmarked_format = 'unmarked';
+
+// Output format...
+// Total Number of Classes, Total Number of classes that are not cancelled, Classes with Original Teachers Present, 
+// Total number of teachers, Total number of teachers in classes that were not cancelled, Total number of teachers present(Unsubstituted), Total number of substitutes, Total number of absent teachers, Unmarked classes.
 
 if(!$data) {
 	$cache_status = false;
@@ -19,30 +28,38 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'substitution' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'substitution' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
-	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id
-		FROM Class C
+	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id, C.status
+		FROM UserClass UC
+		INNER JOIN Class C ON UC.class_id=C.id
 		INNER JOIN Batch B ON B.id=C.batch_id
 		INNER JOIN Center Ctr ON B.center_id=Ctr.id
-		INNER JOIN UserClass UC ON UC.class_id=C.id
-		WHERE C.status='happened' AND B.year=$year AND "
-		. implode(' AND ', $sql_checks));
+		WHERE B.year=$year AND "
+		. implode(' AND ', $sql_checks)
+		. "ORDER BY C.class_on DESC");
 
-	foreach ($all_classes as $c) {
-		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+	if($format != 'csv') {
+		foreach ($all_classes as $c) {
+			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-		$index = findWeekIndex($c['class_on']);
-		if($index <= 3 and $index >= 0) $national[$index]['total_class']++;
-		if($c['substitute_id']) {
-			if($index <= 3 and $index >= 0) $national[$index]['substitution']++;
+			$index = findWeekIndex($c['class_on']);
+			if(!isset($national[$index])) $national[$index] = $template_array;
+
+			$national[$index]['total_class']++;
+			if($c['substitute_id']) $national[$index]['substitution']++;
+			elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
+		}
+		foreach($national as $index => $value) {
+			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['substitution'] / $national[$index]['total_class'] * 100, 2);
 		}
 	}
 
 	foreach ($all_centers_in_city as $this_center_id) {
-		$adoption = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+		if($format != 'csv') $data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+
 		$center_data = $data_template;
 		$annual_data = $template_array;
 
@@ -50,29 +67,31 @@ if(!$data) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
 			$index = findWeekIndex($c['class_on']);
+			if(!isset($center_data[$index])) $center_data[$index] = $template_array;
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
 				$annual_data['total_class']++;
-				if($index <= 3 and $index >= 0) $center_data[$index]['total_class']++;
+				$center_data[$index]['total_class']++;
 
 				if($c['substitute_id']) {
 					$annual_data['substitution']++;
-					if($index <= 3 and $index >= 0) $center_data[$index]['substitution']++;
+					$center_data[$index]['substitution']++;
 				}
+				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
+			}
+
+			if($index == 0 and $c['center_id'] == $this_center_id) {
+				dump($c);
 			}
 		}
 
 		foreach($center_data as $index => $value) {
 			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['substitution'] / $center_data[$index]['total_class'] * 100, 2);
-			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['substitution'] / $national[$index]['total_class'] * 100, 2);
 		}
 		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['substitution'] / $annual_data['total_class'] * 100, 2);
 
-		$output_data_format = 'percentage';
-		if($format == 'csv') $output_data_format = 'substitution';
-
 		$weekly_graph_data = array(
-				array('Weekly ' . $page_title, '% of Substitutions', 'National Average'),
+				array('Weekly ' . $page_title, '%', 'National Average'),
 				array('Four week Back', $center_data[3][$output_data_format], $national[3][$output_data_format]),
 				array('Three Week Back',$center_data[2][$output_data_format], $national[2][$output_data_format]),
 				array('Two Week Back', 	$center_data[1][$output_data_format], $national[1][$output_data_format]),
@@ -86,6 +105,9 @@ if(!$data) {
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
+		
+		$data[$this_center_id]['week_dates'] = $week_dates;
+		$data[$this_center_id]['center_data'] = $center_data;
 
 		$opts['center_id'] = $this_center_id;
 		$data[$this_center_id]['listing_link'] = getLink('substitutions_listing.php', $opts);

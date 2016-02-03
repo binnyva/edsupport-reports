@@ -35,13 +35,13 @@ if(!$data) {
 		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
 
 		$annual_data = array('total_teachers' => 0, 
-			'zero_or_below' => 0, 'one_or_two' => 0, 'three_or_more' => 0,
-			'zero_or_below_percentage' => 0, 'one_or_two_percentage' => 0, 'three_or_more_percentage' => 0);
+			'zero_or_below' => 0, 'one' => 0, 'two_or_more' => 0,
+			'zero_or_below_percentage' => 0, 'one_percentage' => 0, 'two_or_more_percentage' => 0);
 
 		foreach ($all_users as $u) {
 			if($u['credit'] <= 0) $annual_data['zero_or_below']++;
-			elseif($u['credit'] >= 1 and $u['credit'] <= 2) $annual_data['one_or_two']++;
-			elseif($u['credit'] >= 3	) $annual_data['three_or_more']++;
+			elseif($u['credit'] == 1) $annual_data['one']++;
+			elseif($u['credit'] >= 2	) $annual_data['two_or_more']++;
 		}
 		$annual_data['total_teachers'] = count($all_users);
 
@@ -49,14 +49,16 @@ if(!$data) {
 		$annual_graph_data = array(
 				array('Year', 'Credit Status'),
 				array('Zero Or Below',	$annual_data['zero_or_below'] ),
-				array('One/Two Credit',	$annual_data['one_or_two'] ),
-				array('Three or More',	$annual_data['three_or_more'] ),
+				array('One Credit',	$annual_data['one'] ),
+				array('Two or More',	$annual_data['two_or_more'] ),
 			);
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
 
 		$opts['center_id'] = $this_center_id;
 		$data[$this_center_id]['listing_link'] = getLink('volunteer_credits_listing.php', $opts);
 		$data[$this_center_id]['listing_text'] = 'List All Volunteer with Zero credits or less';
+
+		$data[$this_center_id]['center_data'] = array(array(), $annual_data);
 
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
@@ -68,6 +70,14 @@ if(!$data) {
 
 $template->addResource('volunteer_credits.css', 'css');
 $page_title = 'Volunteer Credits';
+
+$csv_format = array(
+		'city_name'		=> 'City',
+		'center_name'	=> 'Center',
+		'zero_or_below'	=> 'Zero Or Below',
+		'one'			=> 'One',
+		'two_or_more'	=> 'Three or Above',
+	);
 
 if($format == 'csv') render('csv.php', false);
 else render('multi_graph.php');

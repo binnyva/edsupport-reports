@@ -14,7 +14,7 @@ $all_cities = $sql->getById("SELECT id, name FROM City WHERE type='actual' ORDER
 $count = 0;
 foreach($all_cities as $city_id => $name) {
 	$opts['city_id'] = $city_id;
-	list($contents, $cache_key) = getCacheAndKey('contents', $opts); // $contents = '';
+	list($contents, $cache_key) = getCacheAndKey('contents', $opts); $contents = '';
 
 	if(!$contents) {
 		$get_header = '&header=1';

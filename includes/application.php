@@ -13,6 +13,13 @@ $all_cities = $sql->getById("SELECT id,name FROM City WHERE type='actual' ORDER 
 $all_cities[0] = 'Any';
 $all_centers = $sql->getById("SELECT id,name,city_id FROM Center WHERE status='1'");
 
+$week_dates = array(); // Last four sundays
+for($i=0; $i<40; $i++) {
+	$epoch = time() - (24 * 60 * 60 * 7 * $i);
+	$week_dates[$i] = findSundayDate(date('Y-m-d', $epoch));
+}
+krsort($week_dates);
+
 function getOptions($QUERY) {
 	$city_id = i($QUERY,'city_id', 0);
 	$center_id = i($QUERY,'center_id', 0);
