@@ -6,6 +6,7 @@ header("Content-type: text/plain");
 $opts = getOptions($QUERY);
 extract($opts);
 $file = i($QUERY, 'file');
+$opts['file'] = $file;
 
 if(!$file) die("'file' parameter is empty.");
 
