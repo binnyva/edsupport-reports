@@ -77,7 +77,7 @@ function getCache($var_name, $options=array(), $backtrace = false) {
 }
 function setCache($cache_key, $data) {
 	global $mem;
-	$cache_expire = 60 * 60;
+	$cache_expire = 60 * 60 * 24;
 
 	if(!$mem) {
 		$mem = new Memcached();
@@ -88,7 +88,7 @@ function setCache($cache_key, $data) {
 
 function cacheQuery($sql_query, $var_name, $options=array(), $query_return_type = 'all') {
 	global $mem,  $sql;
-	$cache_expire = 60 * 60;
+	$cache_expire = 60 * 60 * 24;
 
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
 	list($cached_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);

@@ -11,7 +11,7 @@ unset($opts['checks']);
 
 $page_title = 'Child Attendance';
 
-list($data, $cache_key) = getCacheAndKey('data', $opts); $data = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts); // $data = array();
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'attendance';
@@ -38,7 +38,7 @@ if(!$data) {
 	} else {
 		$centers_to_check = $all_centers_in_city;
 	}
-	
+
 	$level_data = $sql->getById("SELECT L.id, COUNT(SL.id) as student_count 
 			FROM Level L 
 			INNER JOIN StudentLevel SL ON SL.level_id=L.id 

@@ -10,7 +10,7 @@ unset($sql_checks['center_id']);
 unset($opts['checks']);
 
 $page_title = 'Class Cancellations';
-list($data, $cache_key) = getCacheAndKey('data', $opts); $data = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts); // $data = array();
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'cancelled';
