@@ -31,11 +31,26 @@ if(!$data) {
 	$center_data = $data_template;
 	$national = $data_template;
 
+	if(!$center_id) {
+		$centers_to_check = $sql->getCol("SELECT Ctr.id FROM Center Ctr 
+			INNER JOIN City C ON C.id=Ctr.city_id 
+			WHERE Ctr.status='1' AND C.type='actual'");
+	} else {
+		$centers_to_check = $all_centers_in_city;
+	}
+	
 	$level_data = $sql->getById("SELECT L.id, COUNT(SL.id) as student_count 
-		FROM Level L 
-		INNER JOIN StudentLevel SL ON SL.level_id=L.id 
-		WHERE L.center_id IN (" .implode(",", $all_centers_in_city). ") AND L.status='1' AND L.year='$year'
-		GROUP BY SL.level_id");
+			FROM Level L 
+			INNER JOIN StudentLevel SL ON SL.level_id=L.id 
+			WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year'
+			GROUP BY SL.level_id");
+
+	$students = $sql->getById("SELECT SC.class_id, COUNT(SC.id) AS total_count, SUM(CASE WHEN SC.present='1' THEN 1 ELSE 0 END) AS present
+		FROM StudentClass SC 
+		INNER JOIN Class C ON C.id=SC.class_id 
+		WHERE C.level_id IN (" . implode(",", array_keys($level_data)) . ")
+		GROUP BY SC.class_id");
+
 
 	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, L.center_id
 		FROM Class C
@@ -45,11 +60,6 @@ if(!$data) {
 		. implode(' AND ', $sql_checks) . " 
 		ORDER BY class_on DESC");
 
-	$students = $sql->getById("SELECT SC.class_id, COUNT(SC.id) AS total_count, SUM(CASE WHEN SC.present='1' THEN 1 ELSE 0 END) AS present
-		FROM StudentClass SC 
-		INNER JOIN Class C ON C.id=SC.class_id 
-		WHERE C.level_id IN (" . implode(",", array_keys($level_data)) . ")
-		GROUP BY SC.class_id");
 
 	foreach ($all_classes as $c) {
 		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
