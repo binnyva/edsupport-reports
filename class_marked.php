@@ -9,12 +9,8 @@ unset($sql_checks['city_id']);  // We want everything - because we need to calcu
 unset($sql_checks['center_id']);
 unset($opts['checks']);
 
-$page_title = 'Class Cancellations';
+$page_title = 'Class Marked';
 list($data, $cache_key) = getCacheAndKey('data', $opts); // $data = array();
-
-$output_data_format = 'percentage';
-if($format == 'csv') $output_data_format = 'cancelled';
-$output_total_format = 'total_class';
 
 if(!$data) {
 	$cache_status = false;
@@ -23,7 +19,7 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array, $template_array);
 	$center_data = $data_template;
 	$national = $data_template;
@@ -41,11 +37,11 @@ if(!$data) {
 		
 		if(!isset($national[$index])) $national[$index] = $template_array;
 		$national[$index]['total_class']++;
-		if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
-		elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
+		if($c['status'] != 'projected') $national[$index]['marked']++;
+		else $national[$index]['unmarked']++;
 
 		foreach($center_data as $index => $value) {
-			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['total_class'] * 100, 2);
+			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['marked'] / $national[$index]['total_class'] * 100, 2);
 		}
 	}
 
@@ -62,37 +58,33 @@ if(!$data) {
 				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
 
 				$center_data[$index]['total_class']++;
-				if($c['status'] == 'cancelled') $center_data[$index]['cancelled']++;
-				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
+				if($c['status'] != 'projected') $center_data[$index]['marked']++;
+				else $center_data[$index]['unmarked']++;
 			}
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
 				$annual_data['total_class']++;
-				if($c['status'] == 'cancelled') $annual_data['cancelled']++;
-				elseif($c['status'] == 'projected') $annual_data['unmarked']++;
+				if($c['status'] != 'projected') $annual_data['marked']++;
+				else $annual_data['unmarked']++;
 			}
 		}
 
 		foreach($center_data as $index => $value) {
-			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['cancelled'] / $center_data[$index]['total_class'] * 100, 2);
+			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['marked'] / $center_data[$index]['total_class'] * 100, 2);
 		}
-		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['total_class'] * 100, 2);
-
-		$output_data_format = 'percentage';
-		if($format == 'csv') $output_data_format = 'cancelled';
-		$output_unmarked_format = 'unmarked';
+		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['marked'] / $annual_data['total_class'] * 100, 2);
 
 		$weekly_graph_data = array(
-				array('Weekly ' . $page_title, '% of cancelled classes', 'National Average'),
-				array('Four week Back', $center_data[3][$output_data_format], $national[3][$output_data_format]),
-				array('Three Week Back',$center_data[2][$output_data_format], $national[2][$output_data_format]),
-				array('Two Week Back',	$center_data[1][$output_data_format], $national[1][$output_data_format]),
-				array('Last Week',		$center_data[0][$output_data_format], $national[0][$output_data_format])
+				array('Weekly ' . $page_title, '% of Marked classes', 'National Average'),
+				array('Four week Back', $center_data[3]['percentage'], $national[3]['percentage']),
+				array('Three Week Back',$center_data[2]['percentage'], $national[2]['percentage']),
+				array('Two Week Back',	$center_data[1]['percentage'], $national[1]['percentage']),
+				array('Last Week',		$center_data[0]['percentage'], $national[0]['percentage'])
 			);
 		$annual_graph_data = array(
-				array('Year', 'Cancelled'),
-				array('Happened',	$annual_data['total_class'] - $annual_data['cancelled']),
-				array('Cancelled',	$annual_data['cancelled']),
+				array('Year', 'Marked'),
+				array('Happened',	$annual_data['total_class'] - $annual_data['marked']),
+				array('Marked',	$annual_data['marked']),
 			);
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
@@ -112,6 +104,7 @@ if(!$data) {
 	setCache($cache_key, $data);
 }
 
+$colors = array('#16a085', '#e74c3c');
 $csv_format = array(
 		'city_name'		=> 'City',
 		'center_name'	=> 'Center',
@@ -119,7 +112,6 @@ $csv_format = array(
 		'unmarked'		=> 'Unmarked',
 		'total_class'	=> 'Total',
 	);
-$colors = array('#16a085', '#e74c3c');
 
 if($format == 'csv') render('csv.php', false);
 else render('multi_graph.php');
