@@ -20,6 +20,7 @@ foreach($all_cities as $city_id => $name) {
 	if(!$contents) {
 		$get_header = '&header=1';
 		if($count) $get_header = '&header=0';
+		if(i($QUERY, 'no_cache')) $get_header .= '&no_cache=1';
 
 		$url = joinPath($config['site_home'], $file) . '?format=csv&center_id=-1&city_id='. $city_id . $get_header;
 		$contents = load($url);
