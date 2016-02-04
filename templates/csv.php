@@ -1,5 +1,5 @@
 <?php
-header("Content-type: text/plain");
+header("Content-type: text/csv");
 
 $all_cities = $sql->getById("SELECT id, name FROM City");
 

@@ -1,7 +1,7 @@
 <?php
 require '../common.php';
 
-header("Content-type: text/plain");
+header("Content-type: text/csv");
 
 $opts = getOptions($QUERY);
 extract($opts);
