@@ -1,6 +1,5 @@
 <?php
 require '../common.php';
-
 header("Content-type: text/csv");
 
 $opts = getOptions($QUERY);

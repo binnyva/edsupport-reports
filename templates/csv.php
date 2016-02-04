@@ -17,9 +17,9 @@ foreach ($data as $center_info) {
 
 	foreach ($center_info['center_data'] as $key => $value) {
 		if(!$key) continue; // Ignore the header row.
-		$csv = $csv_template;
 
 		if(!isset($csv_format)) {
+			$csv = $csv_template;
 			$csv[] = i($week_dates, $key - 1, ''); // Sunday date
 			$csv[] = i($value, $output_data_format, 0); // Data point
 			if(isset($output_unmarked_format)) $csv[] = i($value, $output_unmarked_format, 0); // Data point
@@ -35,6 +35,7 @@ foreach ($data as $center_info) {
 				$csv[] = $output;
 			}
 		}
+		dump($csv_format, $csv); exit;
 
 		print '"' . implode('","', $csv) . '"' . "\n";
 	}
