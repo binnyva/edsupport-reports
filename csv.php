@@ -1,6 +1,7 @@
 <?php
 require '../common.php';
-header("Content-type: text/csv");
+$mime = i($QUERY, 'mime', 'csv');
+header("Content-type: text/$mime");
 
 $opts = getOptions($QUERY);
 extract($opts);

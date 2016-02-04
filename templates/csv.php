@@ -1,5 +1,6 @@
 <?php
-header("Content-type: text/csv");
+$mime = i($QUERY, 'mime', 'csv');
+header("Content-type: text/$mime");
 
 $all_cities = $sql->getById("SELECT id, name FROM City");
 
@@ -8,7 +9,7 @@ if($header) {
 	else {
 		print "City,Center,Date,$page_title,";
 		if(isset($output_unmarked_format)) print "Unmarked,";
-		print "Total\n"; // . implode(",", $week_dates) . "\n";
+		print "Total\n";
 	}
 }
 
@@ -26,6 +27,7 @@ foreach ($data as $center_info) {
 			$csv[] = i($value, $output_total_format, 0); // Data point
 		
 		} else {
+			$csv = array();
 			foreach ($csv_format as $csv_key => $csv_title) {
 				if($csv_key == 'week') $output = $week_dates[$key - 1];
 				elseif($csv_key == 'city_name') $output = $all_cities[$center_info['city_id']];
@@ -35,7 +37,6 @@ foreach ($data as $center_info) {
 				$csv[] = $output;
 			}
 		}
-		dump($csv_format, $csv); exit;
 
 		print '"' . implode('","', $csv) . '"' . "\n";
 	}

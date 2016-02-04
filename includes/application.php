@@ -1,4 +1,5 @@
 <?php
+if((i($QUERY,'format') == 'csv') or (i($QUERY,'file'))) $config['single_user'] = 1;
 require('../support/includes/application.php');
 $sql->options['stripslashes'] = false;
 require('includes/adoption.php');
