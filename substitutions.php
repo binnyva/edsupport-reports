@@ -28,7 +28,7 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'substitution' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'substitution' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
@@ -51,6 +51,7 @@ if(!$data) {
 			$national[$index]['total_class']++;
 			if($c['substitute_id']) $national[$index]['substitution']++;
 			elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
+			if($c['status'] != 'projected') $national[$index]['marked']++;
 		}
 		foreach($national as $index => $value) {
 			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['substitution'] / $national[$index]['total_class'] * 100, 2);
@@ -78,17 +79,17 @@ if(!$data) {
 					$center_data[$index]['substitution']++;
 				}
 				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
-			}
-
-			if($index == 0 and $c['center_id'] == $this_center_id) {
-				dump($c);
+				if($c['status'] != 'projected') {
+					$center_data[$index]['marked']++;
+					$annual_data['marked']++;
+				}
 			}
 		}
 
 		foreach($center_data as $index => $value) {
-			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['substitution'] / $center_data[$index]['total_class'] * 100, 2);
+			if($center_data[$index]['marked']) $center_data[$index]['percentage'] = round($center_data[$index]['substitution'] / $center_data[$index]['marked'] * 100, 2);
 		}
-		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['substitution'] / $annual_data['total_class'] * 100, 2);
+		if($annual_data['marked']) $annual_data['percentage'] = round($annual_data['substitution'] / $annual_data['marked'] * 100, 2);
 
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '%', 'National Average'),
@@ -99,8 +100,8 @@ if(!$data) {
 			);
 		$annual_graph_data = array(
 				array('Year', '% of Substitutions'),
-				array('Regular Classes',	100 - $annual_data['percentage']),
-				array('Substituted Classes',$annual_data['percentage']),
+				array('Regular Classes',	$annual_data['marked']),
+				array('Substituted Classes',$annual_data['substitution']),
 			);
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;

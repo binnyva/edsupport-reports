@@ -23,7 +23,7 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array, $template_array);
 	$center_data = $data_template;
 	$national = $data_template;
@@ -43,9 +43,10 @@ if(!$data) {
 		$national[$index]['total_class']++;
 		if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
 		elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
+		if($c['status'] != 'projected') $national[$index]['marked']++;
 
 		foreach($center_data as $index => $value) {
-			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['total_class'] * 100, 2);
+			if($national[$index]['marked']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['marked'] * 100, 2);
 		}
 	}
 
@@ -64,19 +65,21 @@ if(!$data) {
 				$center_data[$index]['total_class']++;
 				if($c['status'] == 'cancelled') $center_data[$index]['cancelled']++;
 				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
+				if($c['status'] != 'projected') $center_data[$index]['marked']++;
 			}
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
 				$annual_data['total_class']++;
 				if($c['status'] == 'cancelled') $annual_data['cancelled']++;
 				elseif($c['status'] == 'projected') $annual_data['unmarked']++;
+				if($c['status'] != 'projected') $annual_data['marked']++;
 			}
 		}
 
 		foreach($center_data as $index => $value) {
-			if($center_data[$index]['total_class']) $center_data[$index]['percentage'] = round($center_data[$index]['cancelled'] / $center_data[$index]['total_class'] * 100, 2);
+			if($center_data[$index]['marked']) $center_data[$index]['percentage'] = round($center_data[$index]['cancelled'] / $center_data[$index]['marked'] * 100, 2);
 		}
-		if($annual_data['total_class']) $annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['total_class'] * 100, 2);
+		if($annual_data['marked']) $annual_data['percentage'] = round($annual_data['cancelled'] / $annual_data['marked'] * 100, 2);
 
 		$output_data_format = 'percentage';
 		if($format == 'csv') $output_data_format = 'cancelled';
@@ -91,7 +94,7 @@ if(!$data) {
 			);
 		$annual_graph_data = array(
 				array('Year', 'Cancelled'),
-				array('Happened',	$annual_data['total_class'] - $annual_data['cancelled']),
+				array('Happened',	$annual_data['marked'] - $annual_data['cancelled']),
 				array('Cancelled',	$annual_data['cancelled']),
 			);
 

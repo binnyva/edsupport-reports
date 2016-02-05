@@ -26,7 +26,7 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'attendance' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'attendance' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array, $template_array);
 	$center_data = $data_template;
 	$national = $data_template;
@@ -40,10 +40,10 @@ if(!$data) {
 	}
 
 	$level_data = $sql->getById("SELECT L.id, COUNT(SL.id) as student_count 
-			FROM Level L 
-			INNER JOIN StudentLevel SL ON SL.level_id=L.id 
-			WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year'
-			GROUP BY SL.level_id");
+		FROM Level L 
+		INNER JOIN StudentLevel SL ON SL.level_id=L.id 
+		WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year'
+		GROUP BY SL.level_id");
 
 	$students = $sql->getById("SELECT SC.class_id, COUNT(SC.id) AS total_count, SUM(CASE WHEN SC.present='1' THEN 1 ELSE 0 END) AS present
 		FROM StudentClass SC 
@@ -71,6 +71,7 @@ if(!$data) {
 		if(isset($students[$class_id])) { // There were hits in the StudentClass table
 			$national[$index]['total_class'] += $students[$class_id]['total_count'];
 			$national[$index]['attendance'] += $students[$class_id]['present'];
+			$national[$index]['marked'] += $students[$class_id]['total_count'];
 
 		} else { // No coressponding rows in the StudentClass Table - meaning data not entered. So, we are going to get the data from the level table - students assigned to that level.
 			if(isset($level_data[$c['level_id']])) {
@@ -104,9 +105,11 @@ if(!$data) {
 				if(isset($students[$class_id])) { // There were hits in the StudentClass table
 					$center_data[$index]['total_class'] += $students[$class_id]['total_count'];
 					$center_data[$index]['attendance'] += $students[$class_id]['present'];
+					$center_data[$index]['marked'] += $students[$class_id]['total_count'];
 
 					$annual_data['total_class'] += $students[$class_id]['total_count'];
 					$annual_data['attendance'] += $students[$class_id]['present'];
+					$annual_data['marked'] += $students[$class_id]['total_count'];
 
 				} else { // No coressponding rows in the StudentClass Table - meaning data not entered. So, we are going to get the data from the level table - students assigned to that level.
 					if(isset($level_data[$c['level_id']])) {
@@ -116,7 +119,6 @@ if(!$data) {
 					// Else - no kids assigned to this level, it seems.
 				}
 			}
-
 		}
 
 		foreach($center_data as $index => $value) {
@@ -134,8 +136,8 @@ if(!$data) {
 
 		$annual_graph_data = array(
 			array('Year', 'Attendance'),
-			array('Attended',	$annual_data['percentage']),
-			array('Absent',		100 - $annual_data['percentage']),
+			array('Attended',	$annual_data['attendance']),
+			array('Absent',		$annual_data['marked'] - $annual_data['attendance']),
 		);
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;

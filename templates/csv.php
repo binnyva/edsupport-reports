@@ -17,7 +17,7 @@ foreach ($data as $center_info) {
 	$csv_template = array($all_cities[$center_info['city_id']], $center_info['center_name']);
 
 	foreach ($center_info['center_data'] as $key => $value) {
-		if(!$key) continue; // Ignore the header row.
+		if($key <= 0) continue; // Ignore the header row.
 
 		if(!isset($csv_format)) {
 			$csv = $csv_template;
