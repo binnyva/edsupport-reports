@@ -22,7 +22,7 @@ if(!$city_id and !$center_id and
 
 <?php 
 include('_filter.php');
-if($cache_status) echo '<p class="with-icon info">Data shown here comes from cache - it can be up to one hour late.</p>';
+if($cache_status) echo '<p class="with-icon info">Data shown here comes from cache - it can be up to a day late.</p>';
 else echo '<p class="with-icon info">Real Time Data...</p>';
 ?>
 

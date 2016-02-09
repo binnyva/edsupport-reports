@@ -85,7 +85,6 @@ if(!$data) {
 		if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['attendance'] / $national[$index]['total_class'] * 100, 2);
 	}
 
-
 	foreach ($all_centers_in_city as $this_center_id) {
 		$center_data = $data_template;
 		$annual_data = $template_array;
