@@ -10,7 +10,7 @@ unset($sql_checks['center_id']);
 unset($opts['checks']);
 
 $page_title = 'Substitutions';
-list($data, $cache_key) = getCacheAndKey('data', $opts); /* If you want to clear Cache */ $data = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts); //* If you want to clear Cache */ $data = array();
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'substitution';
@@ -39,7 +39,7 @@ if(!$data) {
 		INNER JOIN Center Ctr ON B.center_id=Ctr.id
 		WHERE B.year=$year AND "
 		. implode(' AND ', $sql_checks)
-		. "ORDER BY C.class_on DESC");
+		. " ORDER BY C.class_on DESC");
 
 	if($format != 'csv') {
 		foreach ($all_classes as $c) {
@@ -54,7 +54,7 @@ if(!$data) {
 			if($c['status'] != 'projected') $national[$index]['marked']++;
 		}
 		foreach($national as $index => $value) {
-			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['substitution'] / $national[$index]['total_class'] * 100, 2);
+			if($national[$index]['marked']) $national[$index]['percentage'] = round($national[$index]['substitution'] / $national[$index]['marked'] * 100, 2);
 		}
 	}
 

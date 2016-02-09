@@ -2,7 +2,7 @@
 
 <?php if($data) { ?>
 <table class="table table-striped">
-<tr><?php $first_row = reset($data);
+<tr><th>Count</th><?php $first_row = reset($data);
 $header = array_keys($first_row);
 foreach ($header as $label) {
 	print "<th>" . format($label) . "</th>";
