@@ -78,3 +78,5 @@ if(isset($listing_link)) echo "<a href='$listing_link' target='_blank'>" . (isse
 <div id="curve_chart_<?php echo $center_id ?>" class="curve_chart"></div>
 <div id="pie_chart_<?php echo $center_id ?>" class="pie_chart"></div><br />
 <?php } ?>
+
+<?php echo isset($end_text) ? $end_text : '';

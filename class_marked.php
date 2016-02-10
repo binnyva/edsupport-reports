@@ -108,6 +108,7 @@ $colors = array('#16a085', '#e74c3c');
 $csv_format = array(
 		'city_name'		=> 'City',
 		'center_name'	=> 'Center',
+		'week'			=> 'Week',
 		'marked'		=> 'Marked',
 		'unmarked'		=> 'Unmarked',
 		'total_class'	=> 'Total',

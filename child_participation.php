@@ -7,6 +7,8 @@ unset($opts['checks']);
 $sql_checks = $checks;
 unset($sql_checks['city_id']);
 unset($sql_checks['center_id']);
+$output_data_format = 'percentage';
+if($format == 'csv') $output_data_format = 'participation';
 
 $page_title = 'Child Participation';
 
@@ -43,14 +45,14 @@ if(!$data) {
 
 			$index = findWeekIndex($c['class_on']);
 
-			if($index >=0 and $index <= 3) {
-				if($c['student_id']) {
-					$center_data[$index]['total_class']++;
+			if($c['student_id']) {
+				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
+				
+				$center_data[$index]['total_class']++;
 
-					if($c['participation']) {
-						$center_data[$index]['attendance']++;
-						$center_data[$index]['participation_' . $c['participation']]++;
-					}
+				if($c['participation']) {
+					$center_data[$index]['attendance']++;
+					$center_data[$index]['participation_' . $c['participation']]++;
 				}
 			}
 			if($c['student_id']) {
@@ -75,9 +77,6 @@ if(!$data) {
 				$annual_data['percentage_' . $i] = round($annual_data['participation_' . $i] / $annual_data['attendance'] * 100, 2);
 		}
 
-		$output_data_format = 'percentage';
-		if($format == 'csv') $output_data_format = 'participation';
-
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '% of level 4 and above', 	'% of level 3', '% of level 2 and below'),
 				array('Four week Back',	$center_data[3][$output_data_format . '_5'] + $center_data[3][$output_data_format . '_4'], $center_data[3][$output_data_format . '_3'], $center_data[3][$output_data_format . '_1'] + $center_data[3][$output_data_format . '_2']),
@@ -94,6 +93,9 @@ if(!$data) {
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
 
+		$data[$this_center_id]['week_dates'] = $week_dates;
+		$data[$this_center_id]['center_data'] = $center_data;
+
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
@@ -104,6 +106,19 @@ if(!$data) {
 if(!$data) $data = array();
 
 $colors = array('#16a085', '#f1c40f', '#e74c3c');
+$end_text = '<h3>Legend</h3><strong>Level 1 - Disruptive</strong> : Child disrupts regular class flow continuously<br />
+<strong>Level 2 - Distracted</strong> : Child is distracted and does not pay attention for most of the class<br />
+<strong>Level 3 - Attentive</strong> : Child pays attention for most of the class<br />
+<strong>Level 4 - Involved</strong> : Child is involved in all the activities in the class with your encouragement<br />
+<strong>Level 5 - Participative</strong> : Child actively participates in all activities in the classes and assists peers in the learning process';
+$csv_format = array(
+		'city_name'		=> 'City',
+		'center_name'	=> 'Center',
+		'week'			=> 'Week',
+		'participation_1_2'	=> 'Participation 1 and 2',
+		'participation_3'	=> 'Participation 3',
+		'participation_4_5'	=> 'Participation 4 and 5',
+	);
 
 if($format == 'csv') render('csv.php', false);
 else render('multi_graph.php');

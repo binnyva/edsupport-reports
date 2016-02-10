@@ -32,6 +32,8 @@ foreach ($data as $center_info) {
 				if($csv_key == 'week') $output = $week_dates[$key - 1];
 				elseif($csv_key == 'city_name') $output = $all_cities[$center_info['city_id']];
 				elseif($csv_key == 'center_name') $output =  $center_info['center_name'];
+				elseif($csv_key == 'participation_1_2') $output =  $value['participation_1'] + $value['participation_2'];
+				elseif($csv_key == 'participation_4_5') $output =  $value['participation_4'] + $value['participation_5'];
 				else $output = i($value, $csv_key, 0);
 
 				$csv[] = $output;

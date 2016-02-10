@@ -10,7 +10,7 @@ unset($sql_checks['center_id']);
 unset($opts['checks']);
 
 $page_title = 'Class Cancellations';
-list($data, $cache_key) = getCacheAndKey('data', $opts); // $data = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'cancelled';
@@ -118,9 +118,10 @@ if(!$data) {
 $csv_format = array(
 		'city_name'		=> 'City',
 		'center_name'	=> 'Center',
-		'marked'		=> 'Marked',
-		'unmarked'		=> 'Unmarked',
+		'week'			=> 'Week',
 		'total_class'	=> 'Total',
+		'cancelled'		=> 'Cancelled',
+		'unmarked'		=> 'Unmarked',
 	);
 $colors = array('#16a085', '#e74c3c');
 

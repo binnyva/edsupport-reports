@@ -14,6 +14,7 @@ list($data, $cache_key) = getCacheAndKey('data', $opts);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'zero_hour_attendance';
+$output_total_format = 'total_class';
 
 if(!$data) {
 	$data = array();
