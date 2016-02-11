@@ -115,6 +115,14 @@ if(!$data) {
 	setCache($cache_key, $data);
 }
 
+$csv_format = array(
+		'city_name'		=> 'City',
+		'center_name'	=> 'Center',
+		'week'			=> 'Week',
+		'total_class'	=> 'Total',
+		'zero_hour_attendance'		=> 'Zero Hour Attendance',
+		'unmarked'		=> 'Unmarked',
+	);
 $colors = array('#16a085', '#e74c3c');
 
 if($format == 'csv') render('csv.php', false);
