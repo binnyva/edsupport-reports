@@ -29,5 +29,6 @@ foreach($all_cities as $city_id => $name) {
 	}
 
 	print $contents;
+	if(isset($QUERY['show_count']) and $QUERY['show_count'] > $count) exit;
 	$count++;
 }
