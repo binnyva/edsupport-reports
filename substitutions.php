@@ -27,8 +27,9 @@ if(!$data) {
 
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
+	$sql_checks['city_id'] = $city_id;
 
-	$template_array = array('total_class' => 0, 'substitution' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'substitution' => 0, 'all_present' => 0, 'absent' => 0, 'class_count' => 0, 'happened_class_count' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
@@ -39,7 +40,7 @@ if(!$data) {
 		INNER JOIN Center Ctr ON B.center_id=Ctr.id
 		WHERE B.year=$year AND "
 		. implode(' AND ', $sql_checks)
-		. " ORDER BY C.class_on DESC");
+		. " ORDER BY C.class_on DESC, UC.class_id");
 
 	if($format != 'csv') {
 		foreach ($all_classes as $c) {
@@ -60,8 +61,15 @@ if(!$data) {
 
 	foreach ($all_centers_in_city as $this_center_id) {
 		if($format != 'csv') $data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+
+		// Initializations
 		$center_data = $data_template;
 		$annual_data = $template_array;
+		$last_class_id = 0;
+		$is_substituted = 0;
+		$is_absent = 0;
+		$is_cancelled = 0;
+		$marked = 1;
 
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
@@ -73,14 +81,52 @@ if(!$data) {
 				$annual_data['total_class']++;
 				$center_data[$index]['total_class']++;
 
-				if($c['substitute_id']) {
-					$annual_data['substitution']++;
-					$center_data[$index]['substitution']++;
+				if($last_class_id != $c['class_id']) { // New class
+					$center_data[$index]['class_count']++;
+					$annual_data['class_count']++;
+
+					// This is the only place where classes are marked
+					if($marked) {
+						$center_data[$index]['marked']++;
+						$annual_data['marked']++;
+
+						if($is_substituted) {
+							$center_data[$index]['substitution']++;
+							$annual_data['substitution']++;
+						}
+
+						if($is_absent) {
+							$center_data[$index]['absent']++;
+							$annual_data['absent']++;
+						}
+
+						if(!$is_substituted and !$is_absent) {
+							$center_data[$index]['all_present']++;
+							$annual_data['all_present']++;
+						}
+						if(!$is_cancelled) {
+							$center_data[$index]['happened_class_count']++;
+							$annual_data['happened_class_count']++;
+						}
+					} else {
+						$annual_data['unmarked']++;
+						$center_data[$index]['unmarked']++;
+					}
+
+					// Re-initialize for next class
+					$last_class_id = $c['class_id'];
+					$is_substituted = 0;
+					$is_absent = 0;
+					$is_cancelled = 0;
+					$marked = 1;
+
 				}
-				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
-				if($c['status'] != 'projected') {
-					$center_data[$index]['marked']++;
-					$annual_data['marked']++;
+
+				if($last_class_id == $c['class_id'] or $last_class_id) { // Next instance of the Same class 
+					if($c['status'] == 'projected') $marked = 0;
+					elseif($c['substitute_id']) $is_substituted = 1;
+					if($c['status'] == 'absent') $is_absent = 1;
+					if($c['status'] == 'cancelled') $is_cancelled = 1;
 				}
 			}
 		}
@@ -119,8 +165,20 @@ if(!$data) {
 	}
 	setCache($cache_key, $data);
 }
-
+// dump($data); exit;
 $colors = array('#16a085', '#e74c3c');
+
+$csv_format = array(
+		'city_name'		=> 'City',
+		'center_name'	=> 'Center',
+		'week'			=> 'Week',
+		'all_present'	=> 'All Original Teachers',
+		'substitution'	=> 'At Least One Substitution',
+		'absent'		=> 'At Least One Absent',
+		'unmarked'		=> 'Unmarked',
+		'class_count'	=> 'Class to be Conducted',
+		'happened_class_count' => 'Classes Conducted',
+	);
 
 if($format == 'csv') render('csv.php', false);
 else render('multi_graph.php');
