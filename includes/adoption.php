@@ -2,6 +2,7 @@
 function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, $data_type) {
 	list($adoption_data, $cache_key) = getCacheAndKey('adoption_data', array($city_id, $center_id, $data_type));
 
+	$adoption_data = array();
 	if(!$adoption_data) {
 		$adoption_data = getAdoptionData($city_id, $center_id, $all_cities, $all_centers);
 		setCache($cache_key, $adoption_data);
@@ -78,24 +79,23 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 				);
 		}
 
-		$all_classes = $sql->getAll("SELECT C.id, UC.id AS user_class_id, UC.status, C.level_id, C.class_on, UC.user_id, UC.status AS user_status, UC.substitute_id, student_id, participation
+		$all_classes = $sql->getAll("SELECT C.id AS class_id, C.level_id, C.status, C.class_on, student_id, participation
 				FROM Class C
-				INNER JOIN UserClass UC ON C.id=UC.class_id 
 				LEFT JOIN StudentClass SC ON C.id=SC.class_id 
 				WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND C.batch_id=$batch_id");
 
 		$class_done = array();
 		foreach ($all_classes as $c) {
-			if(isset($class_done[$c['user_class_id']])) continue; // If data is already marked, skip.
 			if(!isset($all_cities_data[$b['city_id']])) continue;
-			$class_done[$c['user_class_id']] = true;
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+			if(isset($class_done[$c['class_id']])) continue; // If data is already marked, skip.
+			$class_done[$c['class_id']] = true;
 
 			$all_batches[$batch_id]['classes_total']++;
 			$all_centers_data[$b['center_id']]['classes_total']++;
 			$all_cities_data[$b['city_id']]['classes_total']++;
 
-			if($c['user_status'] != 'projected') {
+			if($c['status'] != 'projected') {
 				$all_batches[$batch_id]['volunteer_attendance']++;
 				$all_centers_data[$b['center_id']]['volunteer_attendance']++;
 				$all_cities_data[$b['city_id']]['volunteer_attendance']++;
