@@ -11,7 +11,7 @@ unset($opts['checks']);
 
 $page_title = 'Child Attendance';
 
-list($data, $cache_key) = getCacheAndKey('data', $opts); // $data = array();
+list($data, $cache_key) = getCacheAndKey('data', $opts);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'attendance';
@@ -26,7 +26,7 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'attendance' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'attendance' => 0, 'marked' => 0, 'unmarked' => 0, 'cancelled' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array, $template_array);
 	$center_data = $data_template;
 	$national = $data_template;
@@ -68,7 +68,12 @@ if(!$data) {
 		if(!isset($national[$index])) $national[$index] = $template_array;
 
 		$class_id = $c['id'];
-		if(isset($students[$class_id])) { // There were hits in the StudentClass table
+		if($c['status'] == 'cancelled') {
+			if(isset($level_data[$c['level_id']])) {
+				$national[$index]['cancelled'] += $level_data[$c['level_id']];
+			}
+
+		} elseif(isset($students[$class_id])) { // There were hits in the StudentClass table
 			$national[$index]['total_class'] += $students[$class_id]['total_count'];
 			$national[$index]['attendance'] += $students[$class_id]['present'];
 			$national[$index]['marked'] += $students[$class_id]['total_count'];
@@ -99,9 +104,19 @@ if(!$data) {
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and ($city_id <= 0 or ($c['city_id'] == $city_id))) {
 				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
+				if(!isset($annual_data[$index])) $annual_data[$index] = $template_array;
 
 				$class_id = $c['id'];
-				if(isset($students[$class_id])) { // There were hits in the StudentClass table
+				if($c['status'] == 'cancelled') { // If class was cancelled, add the count of the number of kids in that class as cancelled.
+					if(isset($level_data[$c['level_id']])) {
+						$center_data[$index]['cancelled'] += $level_data[$c['level_id']];
+						$center_data[$index]['total_class'] += $level_data[$c['level_id']];
+						
+						$annual_data[$index]['cancelled'] += $level_data[$c['level_id']];
+						$annual_data[$index]['total_class'] += $level_data[$c['level_id']];
+					}
+
+				} elseif(isset($students[$class_id])) { // There were hits in the StudentClass table
 					$center_data[$index]['total_class'] += $students[$class_id]['total_count'];
 					$center_data[$index]['attendance'] += $students[$class_id]['present'];
 					$center_data[$index]['marked'] += $students[$class_id]['total_count'];
@@ -114,6 +129,9 @@ if(!$data) {
 					if(isset($level_data[$c['level_id']])) {
 						$center_data[$index]['total_class'] += $level_data[$c['level_id']];
 						$center_data[$index]['unmarked'] += $level_data[$c['level_id']];
+
+						$annual_data[$index]['total_class'] += $level_data[$c['level_id']];
+						$annual_data[$index]['unmarked'] += $level_data[$c['level_id']];
 					}
 					// Else - no kids assigned to this level, it seems.
 				}
@@ -153,6 +171,16 @@ if(!$data) {
 }
 
 $colors = array('#16a085', '#e74c3c');
+
+$csv_format = array(
+		'city_name'		=> 'City',
+		'center_name'	=> 'Center',
+		'week'			=> 'Week',
+		'cancelled'		=> 'Cancelled',
+		'attendance'	=> 'Child Attendance',
+		'unmarked'		=> 'Unmarked',
+		'total_class'	=> 'Total',
+	);
 
 if($format == 'csv') render('csv.php', false);
 else render('multi_graph.php');

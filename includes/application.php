@@ -76,9 +76,8 @@ function getCache($var_name, $options=array(), $backtrace = false) {
 	list($cache_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);
 	return $cached_data;
 }
-function setCache($cache_key, $data) {
+function setCache($cache_key, $data, $cache_expire = 86400) { // $cache_expire = 60 * 60 * 24;
 	global $mem;
-	$cache_expire = 60 * 60 * 24;
 
 	if(!$mem) {
 		$mem = new Memcached();

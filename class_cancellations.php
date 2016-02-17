@@ -1,5 +1,7 @@
 <?php
 require('../common.php');
+require 'Development/Logger.php';
+// $logger = new Logger;
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -9,8 +11,15 @@ unset($sql_checks['city_id']);  // We want everything - because we need to calcu
 unset($sql_checks['center_id']);
 unset($opts['checks']);
 
+// Unnessary opts taken out before making cache key.
+$cache_opts = $opts;
+unset($cache_opts['header']);
+unset($cache_opts['format']);
+
+list($data, $cache_key) = getCacheAndKey('data', $cache_opts);
+// $logger->log("Searched for Cache - $cache_key - got " . (($data) ? "things" : "nothing") . ".");
+
 $page_title = 'Class Cancellations';
-list($data, $cache_key) = getCacheAndKey('data', $opts);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'cancelled';
@@ -28,26 +37,34 @@ if(!$data) {
 	$center_data = $data_template;
 	$national = $data_template;
 
+	list($national, $national_cache_key) = getCacheAndKey('national');
+	// $logger->log("Searched for National Data Cache - $national_cache_key - got " . (($national) ? "things" : "nothing") . ".");
+	if($national) $sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - we have it cached. Get only city data.
+
 	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, B.center_id
 			FROM Class C
 			INNER JOIN Batch B ON B.id=C.batch_id
 			INNER JOIN Center Ctr ON B.center_id=Ctr.id
 			WHERE B.year=$year AND "
 			. implode(' AND ', $sql_checks) . " ORDER BY C.class_on DESC");
+	// $logger->log("Used Query: {$sql->_query}");
 
-	foreach ($all_classes as $c) {
-		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
-		$index = findWeekIndex($c['class_on']);
-		
-		if(!isset($national[$index])) $national[$index] = $template_array;
-		$national[$index]['total_class']++;
-		if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
-		elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
-		if($c['status'] != 'projected') $national[$index]['marked']++;
-
-		foreach($center_data as $index => $value) {
+	if(!$national) {
+		foreach ($all_classes as $c) {
+			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+			$index = findWeekIndex($c['class_on']);
+			
+			if(!isset($national[$index])) $national[$index] = $template_array;
+			$national[$index]['total_class']++;
+			if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
+			elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
+			if($c['status'] != 'projected') $national[$index]['marked']++;
+		}
+		foreach($national as $index => $value) {
 			if($national[$index]['marked']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['marked'] * 100, 2);
 		}
+
+		setCache($national_cache_key, $national, 60 * 60 * 24 * 7);
 	}
 
 	foreach ($all_centers_in_city as $this_center_id) {
@@ -66,9 +83,8 @@ if(!$data) {
 				if($c['status'] == 'cancelled') $center_data[$index]['cancelled']++;
 				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
 				if($c['status'] != 'projected') $center_data[$index]['marked']++;
-			}
 
-			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
+				// Annual part
 				$annual_data['total_class']++;
 				if($c['status'] == 'cancelled') $annual_data['cancelled']++;
 				elseif($c['status'] == 'projected') $annual_data['unmarked']++;
