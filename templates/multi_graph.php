@@ -74,7 +74,8 @@ google.setOnLoadCallback(function () {
 <?php } ?>
 <br /><?php
 if(isset($listing_link)) echo "<a href='$listing_link' target='_blank'>" . (isset($listing_text) ? $listing_text . (($center_name) ? " for $center_name" : "") : 'List All') . "</a><br />";
-?>
+if(isset($listing_html)) echo $listing_html;
+?><br />
 <div id="curve_chart_<?php echo $center_id ?>" class="curve_chart"></div>
 <div id="pie_chart_<?php echo $center_id ?>" class="pie_chart"></div><br />
 <?php } ?>

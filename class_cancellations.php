@@ -121,8 +121,8 @@ if(!$data) {
 		$data[$this_center_id]['center_data'] = $center_data;
 
 		$opts['center_id'] = $this_center_id;
-		$data[$this_center_id]['listing_link'] = getLink('class_cancellation_listing.php', $opts);
-		$data[$this_center_id]['listing_text'] = 'List All Classes that are Cancelled';
+		$data[$this_center_id]['listing_html'] = '<a href="' . getLink('class_cancellation_listing.php', $opts) . '">List Cancelled Classes</a>'
+				. ' | <a href="' . getLink('class_cancellation_details.php', $opts) . '">Drill Down</a>';
 
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
