@@ -106,7 +106,7 @@ if(!$data) {
 							$annual_data['absent']++;
 						}
 
-						if(!$is_substituted and !$is_absent) {
+						if(!$is_cancelled and !$is_substituted and !$is_absent) {
 							$center_data[$index]['all_present']++;
 							$annual_data['all_present']++;
 						}
