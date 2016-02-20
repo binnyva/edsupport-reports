@@ -39,7 +39,7 @@ if(!$data) {
 		$sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - CSV don't have national avg.
 	}
 
-	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id, C.status
+	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id, C.status, UC.status user_status
 		FROM UserClass UC
 		INNER JOIN Class C ON UC.class_id=C.id
 		INNER JOIN Batch B ON B.id=C.batch_id
@@ -113,6 +113,9 @@ if(!$data) {
 						if(!$is_cancelled) {
 							$center_data[$index]['happened_class_count']++;
 							$annual_data['happened_class_count']++;
+						} else {
+							$center_data[$index]['cancelled']++;
+							$annual_data['cancelled']++;
 						}
 					} else {
 						$annual_data['unmarked']++;
@@ -131,7 +134,7 @@ if(!$data) {
 				if($last_class_id == $c['class_id'] or $last_class_id) { // Next instance of the Same class 
 					if($c['status'] == 'projected') $marked = 0;
 					elseif($c['substitute_id']) $is_substituted = 1;
-					if($c['status'] == 'absent') $is_absent = 1;
+					if($c['user_status'] == 'absent') $is_absent = 1;
 					if($c['status'] == 'cancelled') $is_cancelled = 1;
 				}
 			}
