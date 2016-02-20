@@ -34,6 +34,11 @@ if(!$data) {
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
+
+	if($format == 'csv') {
+		$sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - CSV don't have national avg.
+	}
+
 	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id, C.status
 		FROM UserClass UC
 		INNER JOIN Class C ON UC.class_id=C.id
@@ -178,8 +183,8 @@ $csv_format = array(
 		'absent'		=> 'At Least One Absent',
 		'cancelled'		=> 'Cancelled',
 		'unmarked'		=> 'Unmarked',
-		'class_count'	=> 'Class to be Conducted',
 		'happened_class_count' => 'Classes Conducted',
+		'class_count'	=> 'Class to be Conducted',
 	);
 
 if($format == 'csv') render('csv.php', false);
