@@ -29,7 +29,8 @@ if(!$data) {
 	else $all_centers_in_city = array($center_id);
 	$sql_checks['city_id'] = $city_id;
 
-	$template_array = array('total_class' => 0, 'substitution' => 0, 'all_present' => 0, 'absent' => 0, 'class_count' => 0, 'happened_class_count' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'substitution' => 0, 'all_present' => 0, 'absent' => 0, 'class_count' => 0, 'happened_class_count' => 0, 'cancelled' => 0,
+		'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
@@ -175,6 +176,7 @@ $csv_format = array(
 		'all_present'	=> 'All Original Teachers',
 		'substitution'	=> 'At Least One Substitution',
 		'absent'		=> 'At Least One Absent',
+		'cancelled'		=> 'Cancelled',
 		'unmarked'		=> 'Unmarked',
 		'class_count'	=> 'Class to be Conducted',
 		'happened_class_count' => 'Classes Conducted',

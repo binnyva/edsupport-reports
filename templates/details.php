@@ -34,7 +34,7 @@ function drawPieInternal() {
 
 	var options = {
 		title: 'Internal Factors',
-		slices: [{"color": "#3f51b5"}, {"color": "#2196f3"}, {"color": "#03a9f4"}, {"color": "#00bcd4"}]
+		slices: [{"color": "#4caf50"}, {"color": "#8bc34a"}, {"color": "#cddc39"}, {"color": "#009688"}, {"color": "#ffeb3b"}]
 	};
 	var chart = new google.visualization.PieChart(document.getElementById('pie_chart_internal'));
 	chart.draw(data, options);
@@ -48,7 +48,7 @@ function drawPieExternal() {
 
 	var options = {
 		title: 'External Factors',
-		slices: [{"color": "#4caf50"}, {"color": "#8bc34a"}, {"color": "#cddc39"}, {"color": "#009688"}, {"color": "#ffeb3b"}]
+		slices: [{"color": "#3f51b5"}, {"color": "#2196f3"}, {"color": "#03a9f4"}, {"color": "#00bcd4"}]
 	};
 	var chart = new google.visualization.PieChart(document.getElementById('pie_chart_external'));
 	chart.draw(data, options);
