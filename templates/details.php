@@ -63,3 +63,4 @@ function drawPieExternal() {
 <div id="pie_chart_external" style="width:45%; float:left;"></div>
 
 <br />
+<a href="<?php echo getLink('class_cancellation_listing.php', $opts) ?>">List All</a>
