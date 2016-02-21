@@ -3,7 +3,9 @@ require('../common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
+$cancel_option = i($QUERY, 'cancel_option', '');
 $checks['status'] = "C.status='cancelled'";
+if($cancel_option) $checks['cancel_option'] = "C.cancel_option LIKE '$cancel_option%'";
 
 $page_title = "Classes Cancelled";
 

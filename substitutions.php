@@ -29,11 +29,17 @@ if(!$data) {
 	else $all_centers_in_city = array($center_id);
 	$sql_checks['city_id'] = $city_id;
 
-	$template_array = array('total_class' => 0, 'substitution' => 0, 'all_present' => 0, 'absent' => 0, 'class_count' => 0, 'happened_class_count' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'substitution' => 0, 'all_present' => 0, 'absent' => 0, 'class_count' => 0, 'happened_class_count' => 0, 'cancelled' => 0,
+		'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
-	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id, C.status
+
+	if($format == 'csv') {
+		$sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - CSV don't have national avg.
+	}
+
+	$all_classes = $sql->getAll("SELECT UC.id, UC.substitute_id, UC.class_id, C.class_on, Ctr.city_id, B.center_id, C.status, UC.status user_status
 		FROM UserClass UC
 		INNER JOIN Class C ON UC.class_id=C.id
 		INNER JOIN Batch B ON B.id=C.batch_id
@@ -100,13 +106,16 @@ if(!$data) {
 							$annual_data['absent']++;
 						}
 
-						if(!$is_substituted and !$is_absent) {
+						if(!$is_cancelled and !$is_substituted and !$is_absent) {
 							$center_data[$index]['all_present']++;
 							$annual_data['all_present']++;
 						}
 						if(!$is_cancelled) {
 							$center_data[$index]['happened_class_count']++;
 							$annual_data['happened_class_count']++;
+						} else {
+							$center_data[$index]['cancelled']++;
+							$annual_data['cancelled']++;
 						}
 					} else {
 						$annual_data['unmarked']++;
@@ -125,7 +134,7 @@ if(!$data) {
 				if($last_class_id == $c['class_id'] or $last_class_id) { // Next instance of the Same class 
 					if($c['status'] == 'projected') $marked = 0;
 					elseif($c['substitute_id']) $is_substituted = 1;
-					if($c['status'] == 'absent') $is_absent = 1;
+					if($c['user_status'] == 'absent') $is_absent = 1;
 					if($c['status'] == 'cancelled') $is_cancelled = 1;
 				}
 			}
@@ -175,9 +184,10 @@ $csv_format = array(
 		'all_present'	=> 'All Original Teachers',
 		'substitution'	=> 'At Least One Substitution',
 		'absent'		=> 'At Least One Absent',
+		'cancelled'		=> 'Cancelled',
 		'unmarked'		=> 'Unmarked',
-		'class_count'	=> 'Class to be Conducted',
 		'happened_class_count' => 'Classes Conducted',
+		'class_count'	=> 'Class to be Conducted',
 	);
 
 if($format == 'csv') render('csv.php', false);

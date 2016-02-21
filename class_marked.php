@@ -24,6 +24,10 @@ if(!$data) {
 	$center_data = $data_template;
 	$national = $data_template;
 
+	if($format == 'csv') {
+		$sql_checks['city_id'] = "Ctr.city_id=$city_id";
+	}
+
 	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, B.center_id
 			FROM Class C
 			INNER JOIN Batch B ON B.id=C.batch_id
@@ -31,16 +35,17 @@ if(!$data) {
 			WHERE B.year=$year AND "
 			. implode(' AND ', $sql_checks) . " ORDER BY C.class_on DESC");
 
-	foreach ($all_classes as $c) {
-		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
-		$index = findWeekIndex($c['class_on']);
-		
-		if(!isset($national[$index])) $national[$index] = $template_array;
-		$national[$index]['total_class']++;
-		if($c['status'] != 'projected') $national[$index]['marked']++;
-		else $national[$index]['unmarked']++;
-
-		foreach($center_data as $index => $value) {
+	if($format != 'csv') {
+		foreach ($all_classes as $c) {
+			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
+			$index = findWeekIndex($c['class_on']);
+			
+			if(!isset($national[$index])) $national[$index] = $template_array;
+			$national[$index]['total_class']++;
+			if($c['status'] != 'projected') $national[$index]['marked']++;
+			else $national[$index]['unmarked']++;
+		}
+		foreach($national as $index => $value) {
 			if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['marked'] / $national[$index]['total_class'] * 100, 2);
 		}
 	}
