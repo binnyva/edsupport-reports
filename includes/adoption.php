@@ -2,7 +2,6 @@
 function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, $data_type) {
 	list($adoption_data, $cache_key) = getCacheAndKey('adoption_data', array($city_id, $center_id, $data_type));
 
-	$adoption_data = array();
 	if(!$adoption_data) {
 		$adoption_data = getAdoptionData($city_id, $center_id, $all_cities, $all_centers);
 		setCache($cache_key, $adoption_data);
@@ -79,28 +78,41 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 				);
 		}
 
-		$all_classes = $sql->getAll("SELECT C.id AS class_id, C.level_id, C.status, C.class_on, student_id, participation
+		$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, SC.student_id,
+											UC.id AS user_class_id, UC.user_id, GROUP_CONCAT(UC.status SEPARATOR ',') AS user_status, UC.substitute_id
 				FROM Class C
+				INNER JOIN UserClass UC ON C.id=UC.class_id 
 				LEFT JOIN StudentClass SC ON C.id=SC.class_id 
-				WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND C.batch_id=$batch_id");
+				WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND C.batch_id=$batch_id
+				GROUP BY C.id");
 
 		$class_done = array();
 		foreach ($all_classes as $c) {
+			if(isset($class_done[$c['user_class_id']])) continue; // If data is already marked, skip.
 			if(!isset($all_cities_data[$b['city_id']])) continue;
+			$class_done[$c['user_class_id']] = true;
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
-			if(isset($class_done[$c['class_id']])) continue; // If data is already marked, skip.
-			$class_done[$c['class_id']] = true;
+
+			$is_projected = false;
+			if($c['status'] == 'projected') { // In some cases, Class.status is projected - but internal UserClass.status might have 'cancelled'.
+				$is_projected = true;
+
+				$class_status_parts = explode(",", $c['user_status']);
+				foreach ($class_status_parts as $ind_status) {
+					if($ind_status != 'projected') $is_projected = false;
+				}
+			}
 
 			$all_batches[$batch_id]['classes_total']++;
 			$all_centers_data[$b['center_id']]['classes_total']++;
 			$all_cities_data[$b['city_id']]['classes_total']++;
 
-			if($c['status'] != 'projected') {
+			if(!$is_projected) {
 				$all_batches[$batch_id]['volunteer_attendance']++;
 				$all_centers_data[$b['center_id']]['volunteer_attendance']++;
 				$all_cities_data[$b['city_id']]['volunteer_attendance']++;
 			}
-			if($c['student_id'] or $c['status'] == 'cancelled') {
+			if($c['student_id'] or $c['status'] == 'cancelled' or strpos($c['user_status'], 'cancelled') !== false)  {
 				$all_batches[$batch_id]['student_attendance']++;
 				$all_centers_data[$b['center_id']]['student_attendance']++;
 				$all_cities_data[$b['city_id']]['student_attendance']++;
