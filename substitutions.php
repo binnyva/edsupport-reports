@@ -96,7 +96,7 @@ if(!$data) {
 						$center_data[$index]['marked']++;
 						$annual_data['marked']++;
 
-						if($is_substituted) {
+						if($is_substituted and !$is_absent) {
 							$center_data[$index]['substitution']++;
 							$annual_data['substitution']++;
 						}
@@ -182,9 +182,10 @@ $csv_format = array(
 		'center_name'	=> 'Center',
 		'week'			=> 'Week',
 		'all_present'	=> 'All Original Teachers',
-		'substitution'	=> 'At Least One Substitution',
 		'absent'		=> 'At Least One Absent',
+		'substitution'	=> 'At Least One Substitution',
 		'cancelled'		=> 'Cancelled',
+		'marked'		=> 'Marked',
 		'unmarked'		=> 'Unmarked',
 		'happened_class_count' => 'Classes Conducted',
 		'class_count'	=> 'Class to be Conducted',
