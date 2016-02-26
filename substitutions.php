@@ -96,31 +96,34 @@ if(!$data) {
 						$center_data[$index]['marked']++;
 						$annual_data['marked']++;
 
-						if($is_substituted and !$is_absent) {
-							$center_data[$index]['substitution']++;
-							$annual_data['substitution']++;
-						}
-
-						if($is_absent) {
-							$center_data[$index]['absent']++;
-							$annual_data['absent']++;
-						}
-
-						if(!$is_cancelled and !$is_substituted and !$is_absent) {
-							$center_data[$index]['all_present']++;
-							$annual_data['all_present']++;
-						}
-						if(!$is_cancelled) {
-							$center_data[$index]['happened_class_count']++;
-							$annual_data['happened_class_count']++;
-						} else {
+						if($is_cancelled) {
 							$center_data[$index]['cancelled']++;
 							$annual_data['cancelled']++;
+
+						} else {
+							$center_data[$index]['happened_class_count']++;
+							$annual_data['happened_class_count']++;
+
+							if($is_substituted and !$is_absent) {
+								$center_data[$index]['substitution']++;
+								$annual_data['substitution']++;
+							}
+
+							if($is_absent) {
+								$center_data[$index]['absent']++;
+								$annual_data['absent']++;
+							}
+
+							if(!$is_cancelled and !$is_substituted and !$is_absent) {
+								$center_data[$index]['all_present']++;
+								$annual_data['all_present']++;
+							}
 						}
 					} else {
 						$annual_data['unmarked']++;
 						$center_data[$index]['unmarked']++;
 					}
+					// dump($center_data[$index], $index);
 
 					// Re-initialize for next class
 					$last_class_id = $c['class_id'];
