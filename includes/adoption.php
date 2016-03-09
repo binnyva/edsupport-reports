@@ -36,7 +36,7 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 
 	$days = array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
 	$year_start = $year . '-04-01 00:00:00';
-	$year_end = intval($year+1) . '-03-31 00:00:00';
+	$year_end = intval($year+1) . '-02-29 00:00:00';
 
 	$all_batches = array();
 	$all_centers_data = array();
