@@ -7,6 +7,8 @@ unset($checks['from']);
 unset($checks['to']);
 unset($opts['checks']);
 
+$page_title = 'Volunteer Credit';
+
 if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 else $all_centers_in_city = array($center_id);
 
@@ -34,7 +36,7 @@ if(!$data) {
 
 		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
 
-		$annual_data = array('total_teachers' => 0, 
+		$annual_data = $template_array = array('total_teachers' => 0, 
 			'zero_or_below' => 0, 'one' => 0, 'two_or_more' => 0,
 			'zero_or_below_percentage' => 0, 'one_percentage' => 0, 'two_or_more_percentage' => 0);
 
@@ -45,20 +47,56 @@ if(!$data) {
 		}
 		$annual_data['total_teachers'] = count($all_users);
 
-		$weekly_graph_data = false;
+
+		// For weekly data, use data in credit archive table
+		$all_credit_archive = $sql->getAll("SELECT UCA.user_id, UCA.credit, UCA.credit_on, Ctr.id AS center_id, Ctr.city_id
+			FROM User_Credit_Archive UCA
+			INNER JOIN UserBatch UB ON UB.user_id=UCA.user_id
+			INNER JOIN Batch B ON UB.batch_id=B.id
+			INNER JOIN Center Ctr ON B.center_id=Ctr.id
+			WHERE B.year=$year AND "
+			. implode(' AND ', $checks));
+
+		foreach ($all_centers_in_city as $this_center_id) {
+			$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+			$center_data = array($template_array, $template_array, $template_array, $template_array);
+
+			foreach ($all_credit_archive as $c) {
+				if($city_id and $c['city_id'] != $city_id) continue;
+				if($this_center_id and $c['center_id'] != $this_center_id) continue;
+
+				$index = findWeekIndex($c['credit_on']);
+
+				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
+
+				if($c['credit'] <= 0) $center_data[$index]['zero_or_below']++;
+				elseif($c['credit'] == 1) $center_data[$index]['one']++;
+				elseif($c['credit'] >= 2) $center_data[$index]['two_or_more']++;
+			}
+		}
+
+		$weekly_graph_data = array(
+				array('Weekly ' . $page_title, '2 and above', 	'1', '0 and below'),
+				array('Four week Back',	$center_data[3]['two_or_more'], $center_data[3]['one'], $center_data[3]['zero_or_below']),
+				array('Three Week Back',$center_data[2]['two_or_more'], $center_data[2]['one'], $center_data[2]['zero_or_below']),
+				array('Two Week Back',	$center_data[1]['two_or_more'], $center_data[1]['one'], $center_data[1]['zero_or_below']),
+				array('Last Week',		$center_data[0]['two_or_more'], $center_data[0]['one'], $center_data[0]['zero_or_below'])
+			);
 		$annual_graph_data = array(
 				array('Year', 'Credit Status'),
 				array('Zero Or Below',	$annual_data['zero_or_below'] ),
-				array('One Credit',	$annual_data['one'] ),
+				array('One Credit',		$annual_data['one'] ),
 				array('Two or More',	$annual_data['two_or_more'] ),
 			);
+		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
 
 		$opts['center_id'] = $this_center_id;
 		$data[$this_center_id]['listing_link'] = getLink('volunteer_credits_listing.php', $opts);
 		$data[$this_center_id]['listing_text'] = 'List All Volunteer with Zero credits or less';
 
-		$data[$this_center_id]['center_data'] = array(array(), $annual_data);
+		$data[$this_center_id]['week_dates'] = $week_dates;
+		$data[$this_center_id]['center_data'] = $center_data;
 
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
@@ -67,7 +105,7 @@ if(!$data) {
 
 	setCache('data', $data);
 }
-
+$colors = array('#16a085', '#f1c40f', '#e74c3c'); 
 $template->addResource('volunteer_credits.css', 'css');
 $page_title = 'Volunteer Credits';
 
