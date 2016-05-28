@@ -29,7 +29,7 @@ foreach ($data as $center_info) {
 		} else {
 			$csv = array();
 			foreach ($csv_format as $csv_key => $csv_title) {
-				if($csv_key == 'week') $output = $week_dates[$key - 1];
+				if($csv_key == 'week') $output = i($week_dates, $key - 1);
 				elseif($csv_key == 'city_name') $output = $all_cities[$center_info['city_id']];
 				elseif($csv_key == 'center_name') $output =  $center_info['center_name'];
 				elseif($csv_key == 'participation_1_2') $output =  $value['participation_1'] + $value['participation_2'];

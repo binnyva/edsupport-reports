@@ -32,7 +32,7 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
+	$template_array = array('total_class' => 0, 'attendance' => 0, 'cancelled' => 0, 'marked' => 0, 'unmarked' => 0, 'happened' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array, $template_array);
 	$center_data = $data_template;
 	$national = $data_template;
@@ -59,6 +59,7 @@ if(!$data) {
 			if($c['status'] == 'cancelled') $national[$index]['cancelled']++;
 			elseif($c['status'] == 'projected') $national[$index]['unmarked']++;
 			if($c['status'] != 'projected') $national[$index]['marked']++;
+			if($c['status'] == 'happened') $national[$index]['happened']++;
 		}
 		foreach($national as $index => $value) {
 			if($national[$index]['marked']) $national[$index]['percentage'] = round($national[$index]['cancelled'] / $national[$index]['marked'] * 100, 2);
@@ -83,12 +84,14 @@ if(!$data) {
 				if($c['status'] == 'cancelled') $center_data[$index]['cancelled']++;
 				elseif($c['status'] == 'projected') $center_data[$index]['unmarked']++;
 				if($c['status'] != 'projected') $center_data[$index]['marked']++;
+				if($c['status'] == 'happened') $center_data[$index]['happened']++;
 
 				// Annual part
 				$annual_data['total_class']++;
 				if($c['status'] == 'cancelled') $annual_data['cancelled']++;
 				elseif($c['status'] == 'projected') $annual_data['unmarked']++;
 				if($c['status'] != 'projected') $annual_data['marked']++;
+				if($c['status'] == 'happened') $annual_data['happened']++;
 			}
 		}
 
@@ -99,7 +102,7 @@ if(!$data) {
 
 		$output_data_format = 'percentage';
 		if($format == 'csv') $output_data_format = 'cancelled';
-		$output_unmarked_format = 'unmarked';
+		$output_unmarked_format = 'happened';
 
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '% of cancelled classes', 'National Average'),
@@ -110,7 +113,7 @@ if(!$data) {
 			);
 		$annual_graph_data = array(
 				array('Year', 'Cancelled'),
-				array('Happened',	$annual_data['marked'] - $annual_data['cancelled']),
+				array('Happened',	$annual_data['happened']),
 				array('Cancelled',	$annual_data['cancelled']),
 			);
 
