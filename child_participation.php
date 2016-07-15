@@ -90,6 +90,7 @@ if(!$data) {
 				array('Level 3', $annual_data['percentage_3']),
 				array('Level 2 or below', $annual_data['percentage_1'] + $annual_data['percentage_2']),
 			);
+
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
 		$data[$this_center_id]['annual_graph_data'] = $annual_graph_data;
 

@@ -14,7 +14,7 @@ if($header) {
 }
 
 foreach ($data as $center_info) {
-	$csv_template = array($all_cities[$center_info['city_id']], $center_info['center_name']);
+	$csv_template = @array($all_cities[$center_info['city_id']], $center_info['center_name']);
 
 	foreach ($center_info['center_data'] as $key => $value) {
 		if($key <= 0) continue; // Ignore the header row.
@@ -30,7 +30,7 @@ foreach ($data as $center_info) {
 			$csv = array();
 			foreach ($csv_format as $csv_key => $csv_title) {
 				if($csv_key == 'week') $output = i($week_dates, $key - 1);
-				elseif($csv_key == 'city_name') $output = $all_cities[$center_info['city_id']];
+				elseif($csv_key == 'city_name') $output = @$all_cities[$center_info['city_id']];
 				elseif($csv_key == 'center_name') $output =  $center_info['center_name'];
 				elseif($csv_key == 'participation_1_2') $output =  $value['participation_1'] + $value['participation_2'];
 				elseif($csv_key == 'participation_4_5') $output =  $value['participation_4'] + $value['participation_5'];
