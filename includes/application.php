@@ -1,8 +1,9 @@
 <?php
 if((i($QUERY,'format') == 'csv') or (i($QUERY,'file'))) $config['single_user'] = 1;
-require('../support/includes/application.php');
-$sql->options['stripslashes'] = false;
 $rel = dirname(__FILE__);
+require($rel . '/../../support/includes/application.php');
+$sql->options['stripslashes'] = false;
+
 require($rel . '/adoption.php');
 
 $year = 2016;
