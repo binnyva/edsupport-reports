@@ -45,6 +45,8 @@ if(!$data) {
 		WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year'
 		GROUP BY SL.level_id");
 
+	if(!$level_data) exit;
+
 	$students = $sql->getById("SELECT SC.class_id, COUNT(SC.id) AS total_count, SUM(CASE WHEN SC.present='1' THEN 1 ELSE 0 END) AS present
 		FROM StudentClass SC 
 		INNER JOIN Class C ON C.id=SC.class_id 
