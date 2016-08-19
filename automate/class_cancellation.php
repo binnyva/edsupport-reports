@@ -38,7 +38,7 @@ http://makeadiff.in/apps/reports/class_cancellation_details.php?city_id=0&center
 MAD Bot
 END;
 
-$send_to = array('loy@makeadiff.in', 'aswin@makeadiff.in', 'sheltersupport1.operations@makeadiff.in', 'sheltersupport2.operations@makeadiff.in', 'sheltersupport3.operations@makeadiff.in', 'sheltersupport1.design@makeadiff.in');
+$send_to = array('loy@makeadiff.in', 'aswin@makeadiff.in', 'sheltersupport1.operations@makeadiff.in', 'sheltersupport2.operations@makeadiff.in', 'sheltersupport3.operations@makeadiff.in', 'sheltersupport1.design@makeadiff.in', 'binnyva@makeadiff.in');
 
 foreach ($send_to as $to) {
 	@email($to, "$cancelled_last_week classes cancelled last week", $email);
