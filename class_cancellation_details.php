@@ -19,7 +19,8 @@ if($city_id) $city_name = $sql->getOne("SELECT name FROM City WHERE id=$city_id"
 list($data, $cache_key) = getCacheAndKey('data', $cache_opts);
 
 if(!$data) {
-	$data_raw = $sql->getAll("SELECT Ctr.name AS center_name, CONCAT(L.grade, L.name) AS level, DATE_FORMAT(C.class_on, '%d %b %Y(%a), %l:%i %p') AS class_on, C.cancel_option, C.cancel_reason
+	$data_raw = $sql->getAll("SELECT Ctr.name AS center_name, CONCAT(L.grade, L.name) AS level, 
+									DATE_FORMAT(C.class_on, '%d %b %Y(%a), %l:%i %p') AS class_on, C.cancel_option, C.cancel_reason
 			FROM Class C
 			INNER JOIN Level L ON L.id=C.level_id
 			INNER JOIN Batch B ON B.id=C.batch_id
@@ -85,4 +86,5 @@ $external  = array(
 	);
 
 // dump($overall, $internal, $external); exit;
+unset($opts['checks']);
 render('details.php');
