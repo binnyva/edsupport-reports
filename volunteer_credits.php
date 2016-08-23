@@ -57,13 +57,13 @@ if(!$data) {
 			WHERE B.year=$year AND "
 			. implode(' AND ', $checks));
 
-		foreach ($all_centers_in_city as $this_center_id) {
-			$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+		foreach ($all_centers_in_city as $this_center_id_inner) {
+			$data[$this_center_id_inner]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id_inner, $all_cities, $all_centers, 'volunteer');
 			$center_data = array($template_array, $template_array, $template_array, $template_array);
 
 			foreach ($all_credit_archive as $c) {
 				if($city_id and $c['city_id'] != $city_id) continue;
-				if($this_center_id and $c['center_id'] != $this_center_id) continue;
+				if($this_center_id_inner and $c['center_id'] != $this_center_id_inner) continue;
 
 				$index = findWeekIndex($c['credit_on']);
 
@@ -100,12 +100,13 @@ if(!$data) {
 
 		$data[$this_center_id]['city_id'] = $city_id;
 		$data[$this_center_id]['center_id'] = $this_center_id;
+		dump($this_center_id);
 		$data[$this_center_id]['center_name'] = ($this_center_id) ? $sql->getOne("SELECT name FROM Center WHERE id=$this_center_id") : '';
 	}
 
 	setCache('data', $data);
 }
-$colors = array('#16a085', '#f1c40f', '#e74c3c'); 
+$colors = array('#e74c3c', '#f1c40f', '#16a085'); 
 $template->addResource('volunteer_credits.css', 'css');
 $page_title = 'Volunteer Credits';
 
