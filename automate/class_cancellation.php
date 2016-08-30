@@ -1,4 +1,5 @@
 <?php
+$single_user = 1;
 require '../../common.php';
 
 /// Cron job to send a weekly report of cancelled classes to a given email id. Lend the link of the actual report with his more dig-downable.
@@ -39,6 +40,7 @@ MAD Bot
 END;
 
 $send_to = array('loy@makeadiff.in', 'aswin@makeadiff.in', 'sheltersupport1.operations@makeadiff.in', 'sheltersupport2.operations@makeadiff.in', 'sheltersupport3.operations@makeadiff.in', 'sheltersupport1.design@makeadiff.in', 'binnyva@makeadiff.in');
+// $send_to = array('binnyva@makeadiff.in');
 
 foreach ($send_to as $to) {
 	@email($to, "$cancelled_last_week classes cancelled last week", $email);
