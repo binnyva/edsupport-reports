@@ -88,6 +88,8 @@ if(!$data) {
 			// Else - no kids assigned to this level, it seems.
 		}
 	}
+
+
 	foreach($national as $index => $value) {
 		if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['attendance'] / $national[$index]['total_class'] * 100, 2);
 	}
@@ -109,13 +111,16 @@ if(!$data) {
 				if(!isset($annual_data[$index])) $annual_data[$index] = $template_array;
 
 				$class_id = $c['id'];
+				$student_count_for_class = 0;
+				if(isset($level_data[$c['level_id']])) $student_count_for_class = $level_data[$c['level_id']];
+
 				if($c['status'] == 'cancelled') { // If class was cancelled, add the count of the number of kids in that class as cancelled.
 					if(isset($level_data[$c['level_id']])) {
-						$center_data[$index]['cancelled'] += $level_data[$c['level_id']];
-						$center_data[$index]['total_class'] += $level_data[$c['level_id']];
+						$center_data[$index]['cancelled'] += $student_count_for_class;
+						$center_data[$index]['total_class'] += $student_count_for_class;
 						
-						$annual_data[$index]['cancelled'] += $level_data[$c['level_id']];
-						$annual_data[$index]['total_class'] += $level_data[$c['level_id']];
+						$annual_data[$index]['cancelled'] += $student_count_for_class;
+						$annual_data[$index]['total_class'] += $student_count_for_class;
 					}
 
 				} elseif(isset($students[$class_id])) { // There were hits in the StudentClass table
@@ -129,13 +134,13 @@ if(!$data) {
 
 				} else { // No coressponding rows in the StudentClass Table - meaning data not entered. So, we are going to get the data from the level table - students assigned to that level.
 					if(isset($level_data[$c['level_id']])) {
-						$center_data[$index]['total_class'] += $level_data[$c['level_id']];
-						$center_data[$index]['unmarked'] += $level_data[$c['level_id']];
+						$center_data[$index]['total_class'] += $student_count_for_class;
+						$center_data[$index]['unmarked'] += $student_count_for_class;
 
-						$annual_data[$index]['total_class'] += $level_data[$c['level_id']];
-						$annual_data[$index]['unmarked'] += $level_data[$c['level_id']];
+						$annual_data[$index]['total_class'] += $student_count_for_class;
+						$annual_data[$index]['unmarked'] += $student_count_for_class;
+					} else { // Else - no kids assigned to this level, it seems.
 					}
-					// Else - no kids assigned to this level, it seems.
 				}
 			}
 		}
