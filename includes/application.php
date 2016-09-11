@@ -118,6 +118,7 @@ function findWeekIndex($class_on) {
 	// elseif($gap < 21) $index = 2;
 	// elseif($gap < 28) $index = 3;
 	// etc.
+	if($index < 0) $index = 0;
 
 	return $index;
 }
