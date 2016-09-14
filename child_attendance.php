@@ -39,6 +39,8 @@ if(!$data) {
 		$centers_to_check = $all_centers_in_city;
 	}
 
+	if(!$centers_to_check) exit;
+
 	$level_data = $sql->getById("SELECT L.id, COUNT(SL.id) as student_count 
 		FROM Level L 
 		INNER JOIN StudentLevel SL ON SL.level_id=L.id 
