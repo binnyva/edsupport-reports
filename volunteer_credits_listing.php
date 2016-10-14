@@ -8,9 +8,9 @@ unset($checks['from']);
 unset($checks['to']);
 
 $checks['credit'] = "U.credit <= $credit";
-$page_title = "Substitutions";
+$page_title = "Volunteers With 0 or Less Credit";
 
-$data = $sql->getAll("SELECT DISTINCT U.name, Ctr.name AS center_name, U.credit
+$data = $sql->getAll("SELECT DISTINCT U.name, U.phone, Ctr.name AS center_name, U.credit
 		FROM User U
 		INNER JOIN UserGroup UG ON UG.user_id=U.id
 		INNER JOIN UserBatch UB ON UB.user_id=U.id
