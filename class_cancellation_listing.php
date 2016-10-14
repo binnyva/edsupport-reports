@@ -17,6 +17,6 @@ $data = $sql->getAll("SELECT City.name AS city_name, Ctr.name AS center_name, CO
 		INNER JOIN City ON Ctr.city_id=City.id
 		WHERE B.year=$year AND "
 		. implode(' AND ', $checks)
-		. " ORDER BY City.name, center_name, level, C.class_on DESC");
+		. " ORDER BY City.name, center_name, C.class_on DESC");
 
 render('listing.php');
