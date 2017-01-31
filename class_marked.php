@@ -26,14 +26,22 @@ if(!$data) {
 
 	if($format == 'csv') {
 		$sql_checks['city_id'] = "Ctr.city_id=$city_id";
+		// if(i($QUERY, 'center_id')) $sql_checks['center_id'] = 'Ctr.id='.i($QUERY, 'center_id');
 	}
 
-	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, B.center_id
+	$all_classes = $sql->getAll("SELECT C.id, C.status, C.batch_id, C.level_id, C.class_on, Ctr.city_id, B.center_id
 			FROM Class C
 			INNER JOIN Batch B ON B.id=C.batch_id
 			INNER JOIN Center Ctr ON B.center_id=Ctr.id
 			WHERE B.year=$year AND "
 			. implode(' AND ', $sql_checks) . " ORDER BY C.class_on DESC");
+
+	// //dump($all_classes);
+	// foreach ($all_classes as $row) {
+	// 	print implode(",", array_values($row)) . "\n";
+	// 	# code...
+	// }
+	// exit;
 
 	if($format != 'csv') {
 		foreach ($all_classes as $c) {

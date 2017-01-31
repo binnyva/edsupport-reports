@@ -22,15 +22,25 @@ $cancelled_this_year = $sql->getOne("SELECT COUNT(C.id) FROM Class C
 	INNER JOIN Level L ON L.id=C.level_id
 	WHERE L.year=$year AND C.status='cancelled'");
 
+// Get total classes
+$total_classes_last_week = $sql->getOne("SELECT COUNT(C.id) FROM Class C 
+	INNER JOIN Level L ON L.id=C.level_id
+	WHERE C.class_on > '$from_last_week_date' AND L.year=$year AND (C.status='happened' OR C.status='cancelled')");
+$total_classes_last_4_days = $sql->getOne("SELECT COUNT(C.id) FROM Class C 
+	INNER JOIN Level L ON L.id=C.level_id
+	WHERE C.class_on > '$from_last_4_days_date' AND L.year=$year AND (C.status='happened' OR C.status='cancelled')");
+$total_classes_this_year = $sql->getOne("SELECT COUNT(C.id) FROM Class C 
+	INNER JOIN Level L ON L.id=C.level_id
+	WHERE L.year=$year AND (C.status='happened' OR C.status='cancelled')");
 
 $email=<<<END
 Hey,
 
 Canceled class in...
 
-Last week($from_last_week_date_formated to $to_date_formated): $cancelled_last_week
-Last four days($from_last_4_days_formated to $to_date_formated): $cancelled_last_4_days
-This year: $cancelled_this_year
+Last week($from_last_week_date_formated to $to_date_formated): $cancelled_last_week/$total_classes_last_week
+Last four days($from_last_4_days_formated to $to_date_formated): $cancelled_last_4_days/$total_classes_last_4_days
+This year: $cancelled_this_year/$total_classes_this_year
 
 For detailed report go to the cancelled classes report...
 http://makeadiff.in/apps/reports/class_cancellation_details.php?city_id=0&center_id=0&from=$from_last_week_date&to=$to_date
