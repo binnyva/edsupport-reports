@@ -35,8 +35,8 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 	global $sql, $year;
 
 	$days = array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
-	$year_start = $year . '-04-01 00:00:00';
-	$year_end = intval($year+1) . '-02-29 00:00:00';
+	$year_start = $year . '-06-01 00:00:00';
+	$year_end = intval($year+1) . '-03-31 00:00:00';
 
 	$all_batches = array();
 	$all_centers_data = array();
@@ -102,6 +102,8 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 					if($ind_status != 'projected') $is_projected = false;
 				}
 			}
+
+			// dump($c);
 
 			$all_batches[$batch_id]['classes_total']++;
 			$all_centers_data[$b['center_id']]['classes_total']++;
