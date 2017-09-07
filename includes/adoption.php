@@ -103,7 +103,7 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 				}
 			}
 
-			// dump($c);
+			dump($c);
 
 			$all_batches[$batch_id]['classes_total']++;
 			$all_centers_data[$b['center_id']]['classes_total']++;
