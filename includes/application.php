@@ -7,7 +7,7 @@ $sql->options['stripslashes'] = false;
 
 require($rel . '/adoption.php');
 
-$year = 2016;
+$year = 2017;
 $cache_status = true;
 $template->addResource(joinPath($config['site_url'], 'bower_components/jquery-ui/ui/minified/jquery-ui.min.js'), 'js', true);
 $template->addResource(joinPath($config['site_url'], 'bower_components/jquery-ui/themes/base/minified/jquery-ui.min.css'), 'css', true);
