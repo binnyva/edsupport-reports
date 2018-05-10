@@ -7,7 +7,6 @@ $sql->options['stripslashes'] = false;
 
 require($rel . '/adoption.php');
 
-$year = 2017;
 $cache_status = true;
 $template->addResource(joinPath($config['site_url'], 'bower_components/jquery-ui/ui/minified/jquery-ui.min.js'), 'js', true);
 $template->addResource(joinPath($config['site_url'], 'bower_components/jquery-ui/themes/base/minified/jquery-ui.min.css'), 'css', true);
@@ -79,7 +78,7 @@ function getCache($var_name, $options=array(), $backtrace = false) {
 	list($cache_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);
 	return $cached_data;
 }
-function setCache($cache_key, $data, $cache_expire = 86400) { // $cache_expire = 60 * 60 * 24;
+function setCache($cache_key, $data, $cache_expire = 86400) { // $cache_expire = 60 * 60 * 24; // Which mean 1 day
 	global $mem;
 
 	if(!$mem) {

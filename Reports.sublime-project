@@ -1,0 +1,13 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+    "settings": {
+        "xdebug": {
+             "url": "http://localhost/Sites/community/makeadiff/makeadiff.in/apps/reports/",
+        }
+    }
+}
