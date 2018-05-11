@@ -48,62 +48,6 @@ function getOptions($QUERY) {
 		);
 }
 
-function getCacheKey($var_name, $options=array(), $backtrace = false) {
-	global $config;
-
-	if(!$backtrace) $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-	$key = unformat($config['site_title']) . ":" . basename($backtrace[0]['file'], '.php') . "/$var_name";
-	
-	if($options) $key .= str_replace("amp;", '', getLink("", $options));
-	return $key;
-}
-function getCacheAndKey($var_name, $options=array(), $backtrace = false) {
-	global $mem, $sql, $QUERY;
-
-	if(!$mem) {
-		$mem = new Memcached();
-		$mem->addServer("127.0.0.1", 11211);
-	}
-
-	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-	$key = getCacheKey($var_name, $options, $backtrace);
-
-	if(i($QUERY,'no_cache')) return array(false, $key);
-
-	return array($mem->get($key), $key);
-}
-
-function getCache($var_name, $options=array(), $backtrace = false) {
-	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-	list($cache_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);
-	return $cached_data;
-}
-function setCache($cache_key, $data, $cache_expire = 86400) { // $cache_expire = 60 * 60 * 24; // Which mean 1 day
-	global $mem;
-
-	if(!$mem) {
-		$mem = new Memcached();
-		$mem->addServer("127.0.0.1", 11211);
-	}
-	$mem->set($cache_key, $data, $cache_expire) or die("Error in caching data for $cache_key");
-}
-
-function cacheQuery($sql_query, $var_name, $options=array(), $query_return_type = 'all') {
-	global $mem,  $sql;
-	$cache_expire = 60 * 60 * 24;
-
-	$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-	list($cached_data, $cache_key) = getCacheAndKey($var_name, $options, $backtrace);
-
-	if(!$cached_data) {
-		$cached_data = $sql->query($sql_query, $query_return_type);
-		setCache($cache_key, $cached_data);
-	}
-
-	return $cached_data;
-}
-
-
 /// Groups into weeks. If the class happened last week, index will be 0. One week ago will 1, two weeks returns 2 and so on.
 function findWeekIndex($class_on) {
 	$datetime1 = date_create($class_on);
