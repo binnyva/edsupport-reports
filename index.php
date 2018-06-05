@@ -1,5 +1,5 @@
 <?php
-require '../common.php';
+require './common.php';
 
 $files = array(
 	'child_attendance.php',

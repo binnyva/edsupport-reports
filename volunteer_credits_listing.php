@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);

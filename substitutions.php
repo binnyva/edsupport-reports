@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -11,6 +11,7 @@ unset($opts['checks']);
 
 $page_title = 'Substitutions';
 list($data, $cache_key) = getCacheAndKey('data', $opts); //* If you want to clear Cache */ $data = array();
+$year = findYear($opts['to']);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'substitution';
@@ -27,13 +28,12 @@ if(!$data) {
 
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
-	$sql_checks['city_id'] = $city_id;
+	if($city_id) $sql_checks['city_id'] = $city_id;
 
 	$template_array = array('total_class' => 0, 'substitution' => 0, 'all_present' => 0, 'absent' => 0, 'class_count' => 0, 'happened_class_count' => 0, 'cancelled' => 0,
 		'marked' => 0, 'unmarked' => 0, 'percentage' => 0);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
-
 
 	if($format == 'csv') {
 		$sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - CSV don't have national avg.
@@ -52,7 +52,7 @@ if(!$data) {
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $opts['to']);
 			if(!isset($national[$index])) $national[$index] = $template_array;
 
 			$national[$index]['total_class']++;
@@ -80,7 +80,7 @@ if(!$data) {
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $opts['to']);
 			if(!isset($center_data[$index])) $center_data[$index] = $template_array;
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
@@ -150,10 +150,10 @@ if(!$data) {
 
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '%', 'National Average'),
-				array('Four week Back', $center_data[3][$output_data_format], $national[3][$output_data_format]),
-				array('Three Week Back',$center_data[2][$output_data_format], $national[2][$output_data_format]),
-				array('Two Week Back', 	$center_data[1][$output_data_format], $national[1][$output_data_format]),
-				array('Last Week',   	$center_data[0][$output_data_format], $national[0][$output_data_format]),
+				array(date('j M Y', strtotime($week_dates[3])), $center_data[3][$output_data_format], $national[3][$output_data_format]),
+				array(date('j M Y', strtotime($week_dates[2])), $center_data[2][$output_data_format], $national[2][$output_data_format]),
+				array(date('j M Y', strtotime($week_dates[1])), $center_data[1][$output_data_format], $national[1][$output_data_format]),
+				array(date('j M Y', strtotime($week_dates[0])), $center_data[0][$output_data_format], $national[0][$output_data_format]),
 			);
 		$annual_graph_data = array(
 				array('Year', '% of Substitutions'),

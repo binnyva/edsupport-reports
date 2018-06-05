@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -11,6 +11,7 @@ if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center 
 else $all_centers_in_city = array($center_id);
 
 list($data, $cache_key) = getCacheAndKey('data', $opts);
+$year = findYear($opts['to']);
 
 if(!$data) {
 	$data = array();

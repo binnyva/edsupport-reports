@@ -1,5 +1,5 @@
 <?php
-require '../common.php';
+require './common.php';
 $mime = i($QUERY, 'mime', 'csv');
 header("Content-type: text/$mime");
 

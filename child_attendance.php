@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -12,12 +12,12 @@ unset($opts['checks']);
 $page_title = 'Child Attendance';
 
 list($data, $cache_key) = getCacheAndKey('data', $opts);
+$year = findYear($to);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'attendance';
 $output_total_format = 'total_class';
 $output_unmarked_format = 'unmarked';
-
 
 if(!$data) {
 	$data = array();
@@ -46,29 +46,26 @@ if(!$data) {
 		INNER JOIN StudentLevel SL ON SL.level_id=L.id 
 		WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year'
 		GROUP BY SL.level_id");
-
 	if(!$level_data) exit;
 
 	$students = $sql->getById("SELECT SC.class_id, COUNT(SC.id) AS total_count, SUM(CASE WHEN SC.present='1' THEN 1 ELSE 0 END) AS present
 		FROM StudentClass SC 
 		INNER JOIN Class C ON C.id=SC.class_id 
-		WHERE C.level_id IN (" . implode(",", array_keys($level_data)) . ")
+		WHERE C.level_id IN (" . implode(",", array_keys($level_data)) . ") AND C.class_on >= '$from 00:00:00' AND C.class_on <= '$to 00:00:00'
 		GROUP BY SC.class_id");
-
 
 	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, L.center_id
 		FROM Class C
 		INNER JOIN Level L ON L.id=C.level_id
 		INNER JOIN Center Ctr ON L.center_id=Ctr.id
-		WHERE L.year=$year AND L.status='1' AND "
+		WHERE L.status='1' AND  L.year='$year' AND "
 		. implode(' AND ', $sql_checks) . " 
 		ORDER BY class_on DESC");
-
 
 	foreach ($all_classes as $c) {
 		if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-		$index = findWeekIndex($c['class_on']);
+		$index = findWeekIndex($c['class_on'], $opts['to']);
 		if(!isset($national[$index])) $national[$index] = $template_array;
 
 		$class_id = $c['id'];
@@ -91,7 +88,6 @@ if(!$data) {
 		}
 	}
 
-
 	foreach($national as $index => $value) {
 		if($national[$index]['total_class']) $national[$index]['percentage'] = round($national[$index]['attendance'] / $national[$index]['total_class'] * 100, 2);
 	}
@@ -106,7 +102,7 @@ if(!$data) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 			if(($this_center_id and ($c['center_id'] != $this_center_id)) or ($city_id > 0 and ($c['city_id'] != $city_id))) continue;
 
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $to);
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and ($city_id <= 0 or ($c['city_id'] == $city_id))) {
 				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
@@ -154,10 +150,10 @@ if(!$data) {
 
 		$weekly_graph_data = array(
 			array('Week', 'Weekly Child Attendance', 'National Average'),
-			array('Four week Back', $center_data[3][$output_data_format], $national[3][$output_data_format]),
-			array('Three Week Back',$center_data[2][$output_data_format], $national[2][$output_data_format]),
-			array('Two Week Back',	$center_data[1][$output_data_format], $national[1][$output_data_format]),
-			array('Last Week',		$center_data[0][$output_data_format], $national[0][$output_data_format])
+			array(date('j M Y', strtotime($week_dates[3])), $center_data[3][$output_data_format], $national[3][$output_data_format]),
+			array(date('j M Y', strtotime($week_dates[2])),$center_data[2][$output_data_format], $national[2][$output_data_format]),
+			array(date('j M Y', strtotime($week_dates[1])),	$center_data[1][$output_data_format], $national[1][$output_data_format]),
+			array(date('j M Y', strtotime($week_dates[0])),		$center_data[0][$output_data_format], $national[0][$output_data_format])
 		);
 
 		$annual_graph_data = array(

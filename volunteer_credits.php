@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -13,6 +13,7 @@ if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center 
 else $all_centers_in_city = array($center_id);
 
 list($data, $cache_key) = getCacheAndKey('data', $opts);
+$year = findYear($opts['to']);
 
 if(!$data) {
 	$data = array();
@@ -54,7 +55,7 @@ if(!$data) {
 			INNER JOIN UserBatch UB ON UB.user_id=UCA.user_id
 			INNER JOIN Batch B ON UB.batch_id=B.id
 			INNER JOIN Center Ctr ON B.center_id=Ctr.id
-			WHERE B.year=$year AND "
+			WHERE B.year=$year AND credit_on >= '$from 00:00:00' AND credit_on <= '$to 00:00:00' AND "
 			. implode(' AND ', $checks));
 
 		foreach ($all_centers_in_city as $this_center_id_inner) {
@@ -65,7 +66,7 @@ if(!$data) {
 				if($city_id and $c['city_id'] != $city_id) continue;
 				if($this_center_id_inner and $c['center_id'] != $this_center_id_inner) continue;
 
-				$index = findWeekIndex($c['credit_on']);
+				$index = findWeekIndex($c['credit_on'], $opts['to']);
 
 				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
 
@@ -77,10 +78,10 @@ if(!$data) {
 
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '2 and above', 	'1', '0 and below'),
-				array('Four week Back',	$center_data[3]['two_or_more'], $center_data[3]['one'], $center_data[3]['zero_or_below']),
-				array('Three Week Back',$center_data[2]['two_or_more'], $center_data[2]['one'], $center_data[2]['zero_or_below']),
-				array('Two Week Back',	$center_data[1]['two_or_more'], $center_data[1]['one'], $center_data[1]['zero_or_below']),
-				array('Last Week',		$center_data[0]['two_or_more'], $center_data[0]['one'], $center_data[0]['zero_or_below'])
+				array(date('j M Y', strtotime($week_dates[3])),	$center_data[3]['two_or_more'], $center_data[3]['one'], $center_data[3]['zero_or_below']),
+				array(date('j M Y', strtotime($week_dates[2])), $center_data[2]['two_or_more'], $center_data[2]['one'], $center_data[2]['zero_or_below']),
+				array(date('j M Y', strtotime($week_dates[0])),	$center_data[1]['two_or_more'], $center_data[1]['one'], $center_data[1]['zero_or_below']),
+				array(date('j M Y', strtotime($week_dates[1])), $center_data[0]['two_or_more'], $center_data[0]['one'], $center_data[0]['zero_or_below'])
 			);
 		$annual_graph_data = array(
 				array('Year', 'Credit Status'),

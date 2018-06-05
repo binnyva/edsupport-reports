@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -11,6 +11,7 @@ unset($opts['checks']);
 
 $page_title = 'Volunteers Marked';
 list($data, $cache_key) = getCacheAndKey('data', $opts); // $data = array();
+$year = findYear($opts['to']);
 
 if(!$data) {
 	$cache_status = false;
@@ -43,7 +44,7 @@ if(!$data) {
 
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $opts['to']);
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
 				if(!isset($center_data[$index])) $center_data[$index] = $template_array;

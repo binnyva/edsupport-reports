@@ -18,15 +18,19 @@ $all_centers = $sql->getById("SELECT id,name,city_id FROM Center WHERE status='1
 
 $week_dates = array(); // Last four sundays
 for($i=0; $i<40; $i++) {
-	$epoch = time() - (24 * 60 * 60 * 7 * $i);
+	if(!empty($QUERY['to'])) $end_date = strtotime($QUERY['to']);
+	else $end_date = time();
+	$epoch = $end_date - (24 * 60 * 60 * 7 * $i);
 	$week_dates[$i] = findSundayDate(date('Y-m-d', $epoch));
 }
 krsort($week_dates);
 
 function getOptions($QUERY) {
+	global $year;
+
 	$city_id = i($QUERY,'city_id', 0);
 	$center_id = i($QUERY,'center_id', 0);
-	$from = i($QUERY,'from', '2015-06-01');
+	$from = i($QUERY,'from', $year . '-04-01');
 	$to = i($QUERY,'to', date('Y-m-d'));
 	$format = i($QUERY, 'format', 'html');
 	$header = i($QUERY, 'header', '1');
@@ -49,9 +53,11 @@ function getOptions($QUERY) {
 }
 
 /// Groups into weeks. If the class happened last week, index will be 0. One week ago will 1, two weeks returns 2 and so on.
-function findWeekIndex($class_on) {
+function findWeekIndex($class_on, $reference_date = false) {
+	if(!$reference_date) $reference_date = date('Y-m-d');
+
 	$datetime1 = date_create($class_on);
-	$datetime2 = date_create(date('Y-m-d'));
+	$datetime2 = date_create($reference_date);
 	$interval = date_diff($datetime1, $datetime2);
 	$gap = $interval->format('%a');
 
@@ -65,6 +71,18 @@ function findWeekIndex($class_on) {
 	if($index < 0) $index = 0;
 
 	return $index;
+}
+
+function findYear($date = false) {
+	if(!$date) $base_date = time();
+	else $base_date = strtotime($date);
+
+	$this_month = intval(date('m', $base_date));
+	$months = array();
+	$start_month = 5; // May
+	$start_year = date('Y', $base_date);
+	if($this_month < $start_month) $start_year = date('Y', $base_date) -1;
+	return $start_year;
 }
 
 function findSundayDate($class_on) {

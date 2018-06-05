@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -11,6 +11,7 @@ unset($opts['checks']);
 
 $page_title = 'Check For Understanding';
 list($data, $cache_key) = getCacheAndKey('data', $opts);
+$year = findYear($opts['to']);
 
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'check_for_understanding';
@@ -39,7 +40,7 @@ if(!$data) {
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $opts['to']);
 			if(!isset($national[$index])) $national[$index] = $template_array;
 
 			$national[$index]['total_class']++;
@@ -62,7 +63,7 @@ if(!$data) {
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.
 
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $opts['to']);
 			if(!isset($center_data[$index])) $center_data[$index] = $template_array;
 
 			if((!$this_center_id or ($c['center_id'] == $this_center_id)) and (!$city_id or ($c['city_id'] == $city_id))) {
@@ -89,10 +90,10 @@ if(!$data) {
 
 		$weekly_graph_data = array(
 			array('Weekly ' . $page_title, '% of Understood Class', 'National Average'),
-			array('Four week Back', $center_data[3][$output_data_format], $national[3][$output_data_format]),
-			array('Three Week Back',$center_data[2][$output_data_format], $national[2][$output_data_format]),
-			array('Two Week Back', 	$center_data[1][$output_data_format], $national[1][$output_data_format]),
-			array('Last Week',   	$center_data[0][$output_data_format], $national[0][$output_data_format])
+			array(date('j M Y', strtotime($week_dates[3])), $center_data[3][$output_data_format], $national[3][$output_data_format]),
+			array(date('j M Y', strtotime($week_dates[2])), $center_data[2][$output_data_format], $national[2][$output_data_format]),
+			array(date('j M Y', strtotime($week_dates[1])), $center_data[1][$output_data_format], $national[1][$output_data_format]),
+			array(date('j M Y', strtotime($week_dates[0])), $center_data[0][$output_data_format], $national[0][$output_data_format])
 		);
 
 		$annual_graph_data = array(

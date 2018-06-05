@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -13,6 +13,7 @@ if($format == 'csv') $output_data_format = 'participation';
 $page_title = 'Child Participation';
 
 list($data, $cache_key) = getCacheAndKey('data', $opts);
+$year = findYear($to);
 
 if(!$data) {
 	$cache_status = false;
@@ -43,7 +44,7 @@ if(!$data) {
 			if($city_id and $c['city_id'] != $city_id) continue;
 			if($this_center_id and $c['center_id'] != $this_center_id) continue;
 
-			$index = findWeekIndex($c['class_on']);
+			$index = findWeekIndex($c['class_on'], $opts['to']);
 
 			if($c['student_id']) {
 				if(!isset($center_data[$index])) $center_data[$index] = $template_array;
@@ -79,10 +80,10 @@ if(!$data) {
 
 		$weekly_graph_data = array(
 				array('Weekly ' . $page_title, '% of level 4 and above', 	'% of level 3', '% of level 2 and below'),
-				array('Four week Back',	$center_data[3][$output_data_format . '_5'] + $center_data[3][$output_data_format . '_4'], $center_data[3][$output_data_format . '_3'], $center_data[3][$output_data_format . '_1'] + $center_data[3][$output_data_format . '_2']),
-				array('Three Week Back',$center_data[2][$output_data_format . '_5'] + $center_data[2][$output_data_format . '_4'], $center_data[2][$output_data_format . '_3'], $center_data[2][$output_data_format . '_1'] + $center_data[2][$output_data_format . '_2']),
-				array('Two Week Back',	$center_data[1][$output_data_format . '_5'] + $center_data[1][$output_data_format . '_4'], $center_data[1][$output_data_format . '_3'], $center_data[1][$output_data_format . '_1'] + $center_data[1][$output_data_format . '_2']),
-				array('Last Week',		$center_data[0][$output_data_format . '_5'] + $center_data[0][$output_data_format . '_4'], $center_data[0][$output_data_format . '_3'], $center_data[0][$output_data_format . '_1'] + $center_data[0][$output_data_format . '_2'])
+				array(date('j M Y', strtotime($week_dates[3])),	$center_data[3][$output_data_format . '_5'] + $center_data[3][$output_data_format . '_4'], $center_data[3][$output_data_format . '_3'], $center_data[3][$output_data_format . '_1'] + $center_data[3][$output_data_format . '_2']),
+				array(date('j M Y', strtotime($week_dates[2])),$center_data[2][$output_data_format . '_5'] + $center_data[2][$output_data_format . '_4'], $center_data[2][$output_data_format . '_3'], $center_data[2][$output_data_format . '_1'] + $center_data[2][$output_data_format . '_2']),
+				array(date('j M Y', strtotime($week_dates[1])),	$center_data[1][$output_data_format . '_5'] + $center_data[1][$output_data_format . '_4'], $center_data[1][$output_data_format . '_3'], $center_data[1][$output_data_format . '_1'] + $center_data[1][$output_data_format . '_2']),
+				array(date('j M Y', strtotime($week_dates[0])),		$center_data[0][$output_data_format . '_5'] + $center_data[0][$output_data_format . '_4'], $center_data[0][$output_data_format . '_3'], $center_data[0][$output_data_format . '_1'] + $center_data[0][$output_data_format . '_2'])
 			);
 		$annual_graph_data = array(
 				array('Year', '% of child Participation'),

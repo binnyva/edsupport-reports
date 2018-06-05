@@ -15,7 +15,7 @@
 <div id="wrapper" class="container">
 <div id="header" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
 <div id="nav" class="container">
-	<div class="navbar-brand"><a href="<?php echo $config['site_home'] ?>"><img src="../okr/images/logo.png" height="100" /></a></div>
+	<div class="navbar-brand"><a href="<?php echo $config['site_home'] ?>"><img src="../common/images/logo.png" height="100" /></a></div>
 
 	<div class="collapse navbar-collapse">
 	<ul id="nav-links" class="nav navbar-nav pull-right">

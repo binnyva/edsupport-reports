@@ -1,5 +1,5 @@
 <?php
-require('../common.php');
+require('./common.php');
 
 $opts = getOptions($QUERY);
 extract($opts);
@@ -17,6 +17,7 @@ $city_name = '';
 if($city_id) $city_name = $sql->getOne("SELECT name FROM City WHERE id=$city_id");
 
 list($data, $cache_key) = getCacheAndKey('data', $cache_opts);
+$year = findYear($opts['to']);
 
 if(!$data) {
 	$data_raw = $sql->getAll("SELECT Ctr.name AS center_name, CONCAT(L.grade, L.name) AS level, 
