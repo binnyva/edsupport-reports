@@ -53,7 +53,7 @@ google.setOnLoadCallback(function () {
 	var data = google.visualization.arrayToDataTable(<?php echo json_encode($annual_graph_data); ?>);
 
 	var options = {
-		title: 'Annual <?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
+		title: '<?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
 		slices: <?php 
 			$slice_colors = array();
 			for($i=0; $i<count($colors); $i++) $slice_colors[$i] = array('color' => $colors[$i]);
