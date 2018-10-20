@@ -34,6 +34,7 @@ function getOptions($QUERY) {
 	$to = i($QUERY,'to', date('Y-m-d'));
 	$format = i($QUERY, 'format', 'html');
 	$header = i($QUERY, 'header', '1');
+	$project_id = i($QUERY, 'project_id', '1');
 
 	$checks = array('true' => '1'); // The 1 to make sure that there will be something - so that there is no extra 'AND' clause.
 	if($city_id) $checks['city_id'] = "Ctr.city_id=$city_id";
@@ -49,7 +50,8 @@ function getOptions($QUERY) {
 		'checks'	=> $checks,
 		'format'	=> $format,
 		'header'	=> $header,
-		);
+		'project_id'=> $project_id
+	);
 }
 
 /// Groups into weeks. If the class happened last week, index will be 0. One week ago will 1, two weeks returns 2 and so on.
