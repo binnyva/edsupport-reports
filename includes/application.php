@@ -36,11 +36,12 @@ function getOptions($QUERY) {
 	$header = i($QUERY, 'header', '1');
 	$project_id = i($QUERY, 'project_id', '1');
 
-	$checks = array('true' => '1'); // The 1 to make sure that there will be something - so that there is no extra 'AND' clause.
+	$checks = array('1' => '1'); // The 1 to make sure that there will be something - so that there is no extra 'AND' clause.
 	if($city_id) $checks['city_id'] = "Ctr.city_id=$city_id";
 	if($center_id) $checks['center_id'] = "Ctr.id=$center_id";
 	if($from) $checks['from'] = "C.class_on >= '$from 00:00:00'";
 	if($to) $checks['to'] = "C.class_on <= '$to 00:00:00'";
+	if($project_id) $checks['project_id'] = "B.project_id = $project_id";
 
 	return array(
 		'city_id'	=> $city_id,

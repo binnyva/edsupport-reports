@@ -5,10 +5,7 @@ $opts = getOptions($QUERY);
 if(!$opts['city_id']) $opts['city_id'] = 1;
 extract($opts);
 
-if(!isset($QUERY['type'])) $type = 'mentor';
-else $type = $QUERY['type'];
-
-$page_title = ucfirst(format($type)) . ' Participation';
+$page_title = 'City Participation';
 
 $year = findYear($to);
 $center_check = '';
@@ -33,21 +30,10 @@ $class_data = $sql->getAll("SELECT C.id,C.class_on,C.batch_id,C.level_id,D.data
 
 $mentor_group_id = 8;
 if($project_id == 2) $mentor_group_id = 286;
-if($type == 'mentor') {
-	$monitors = $sql->getById("SELECT U.id,U.name,U.phone,'0' AS attended, '0' AS attended_own_batch FROM User U
+$monitors = $sql->getById("SELECT U.id,U.name,U.phone,'0' AS attended, '0' AS attended_own_batch FROM User U
 									INNER JOIN UserGroup UG ON UG.user_id=U.id
 									WHERE UG.group_id = $mentor_group_id AND UG.year=2018 AND U.status='1' AND U.user_type='volunteer' AND U.city_id=$city_id
 									ORDER BY U.name");
-} else {
-	if($type == 'es_fellows') 
-		$fellow_groups = implode(",", $sql->getCol("SELECT id FROM `Group` WHERE status='1' AND group_type='normal' AND type='fellow' AND vertical_id=3"));
-	else 
-		$fellow_groups = implode(",", $sql->getCol("SELECT id FROM `Group` WHERE status='1' AND group_type='normal' AND type='fellow'"));
-	$monitors = $sql->getById("SELECT U.id,U.name,U.phone,'0' AS attended FROM User U
-									INNER JOIN UserGroup UG ON UG.user_id=U.id
-									WHERE UG.group_id IN ( $fellow_groups ) AND UG.year=2018 AND U.status='1' AND U.user_type='volunteer' AND U.city_id=$city_id
-									ORDER BY U.name");
-}
 
 foreach($class_data as $cls) {
 	$attend = json_decode($cls['data']);
@@ -61,21 +47,3 @@ foreach($class_data as $cls) {
 		} 
 	}
 }
-
-// Sort by Shelter name.
-usort($monitors, function($a, $b) {
-	global $all_batches, $all_centers; 
-
-	$batch_a = $batch_b = [];
-	foreach ($all_batches as $batch_id => $batch_info) {
-		if($batch_info['batch_head_id'] == $a['id']) $batch_a = $batch_info;
-		if($batch_info['batch_head_id'] == $b['id']) $batch_b = $batch_info;
-	}
-
-	if($batch_a and $batch_b)
-		return strcmp($all_centers[$batch_a['center_id']]['name'], $all_centers[$batch_b['center_id']]['name']);
-	
-	return 0;
-});
-
-render();

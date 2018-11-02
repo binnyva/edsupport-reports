@@ -7,6 +7,7 @@ unset($opts['checks']);
 $sql_checks = $checks;
 unset($sql_checks['city_id']);
 unset($sql_checks['center_id']);
+
 $output_data_format = 'percentage';
 if($format == 'csv') $output_data_format = 'participation';
 
