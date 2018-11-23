@@ -40,7 +40,7 @@ if(!$data) {
 
 	list($national, $national_cache_key) = getCacheAndKey('national');
 	// $logger->log("Searched for National Data Cache - $national_cache_key - got " . (($national) ? "things" : "nothing") . ".");
-	if($national) $sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - we have it cached. Get only city data.
+	if($national and $city_id) $sql_checks['city_id'] = "Ctr.city_id=$city_id"; // If we don't want the entire national data - we have it cached. Get only city data.
 
 	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, B.center_id
 			FROM Class C

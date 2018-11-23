@@ -54,11 +54,11 @@ if(!$data) {
 		WHERE C.level_id IN (" . implode(",", array_keys($level_data)) . ") AND C.class_on >= '$from 00:00:00' AND C.class_on <= '$to 00:00:00'
 		GROUP BY SC.class_id");
 
-	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, L.center_id
+	$all_classes = $sql->getAll("SELECT C.id, C.status, C.level_id, C.class_on, Ctr.city_id, B.center_id
 		FROM Class C
-		INNER JOIN Level L ON L.id=C.level_id
-		INNER JOIN Center Ctr ON L.center_id=Ctr.id
-		WHERE L.status='1' AND  L.year='$year' AND "
+		INNER JOIN Batch B ON B.id=C.batch_id
+		INNER JOIN Center Ctr ON B.center_id=Ctr.id
+		WHERE B.status='1' AND  B.year='$year' AND "
 		. implode(' AND ', $sql_checks) . " 
 		ORDER BY class_on DESC");
 
