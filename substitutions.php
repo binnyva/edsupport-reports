@@ -157,8 +157,8 @@ if(!$data) {
 			);
 		$annual_graph_data = array(
 				array('Year', '% of Substitutions'),
-				array('Regular Classes',	$annual_data['marked']),
-				array('Substituted Classes',$annual_data['substitution']),
+				array('Regular Teacher-Classes',	$annual_data['marked']),
+				array('Substituted Teacher-Classes',$annual_data['substitution']),
 			);
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;

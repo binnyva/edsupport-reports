@@ -69,7 +69,7 @@ google.setOnLoadCallback(function () {
 <?php if(isset($adoption)) { ?>
 <div class="progress">
 <?php if($adoption) { ?><div class="data" style="width:<?php echo $adoption ?>%; background-color: <?php echo $adoption_colors[1] ?>;">Adoption Percentage: <?php echo $adoption ?>%</div><?php } ?>
-<?php if(100-$adoption) { ?><div class="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: <?php echo $adoption_colors[0] ?>;">&nbsp;</div><?php } ?>
+<?php if(100 - $adoption) { ?><div class="no-data" style="width:<?php echo 100-$adoption ?>%; background-color: <?php echo $adoption_colors[0] ?>;">&nbsp;</div><?php } ?>
 </div>
 <?php } ?>
 <br /><?php
