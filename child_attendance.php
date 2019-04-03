@@ -44,7 +44,7 @@ if(!$data) {
 	$level_data = $sql->getById("SELECT L.id, COUNT(SL.id) as student_count 
 		FROM Level L 
 		INNER JOIN StudentLevel SL ON SL.level_id=L.id 
-		WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year'
+		WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year' AND L.project_id=$project_id
 		GROUP BY SL.level_id");
 	if(!$level_data) exit;
 
@@ -96,7 +96,7 @@ if(!$data) {
 		$center_data = $data_template;
 		$annual_data = $template_array;
 
-		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
+		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student', $project_id);
 
 		foreach ($all_classes as $c) {
 			if($c['class_on'] > date("Y-m-d H:i:s")) continue; // Don't count classes not happened yet.

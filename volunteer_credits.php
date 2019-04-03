@@ -35,7 +35,7 @@ if(!$data) {
 				WHERE U.status='1' AND UG.group_id=9 AND user_type='volunteer' AND "
 				. implode(' AND ', $checks));
 
-		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer', $project_id);
 
 		$annual_data = $template_array = array('total_teachers' => 0, 
 			'zero_or_below' => 0, 'one' => 0, 'two_or_more' => 0,
@@ -59,7 +59,7 @@ if(!$data) {
 			. implode(' AND ', $checks));
 
 		foreach ($all_centers_in_city as $this_center_id_inner) {
-			$data[$this_center_id_inner]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id_inner, $all_cities, $all_centers, 'volunteer');
+			$data[$this_center_id_inner]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id_inner, $all_cities, $all_centers, 'volunteer', $project_id);
 			$center_data = array($template_array, $template_array, $template_array, $template_array);
 
 			foreach ($all_credit_archive as $c) {

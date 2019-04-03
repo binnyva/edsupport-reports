@@ -26,7 +26,7 @@ if(!$data) {
 			INNER JOIN Level L ON L.id=C.level_id
 			INNER JOIN Batch B ON B.id=C.batch_id
 			INNER JOIN Center Ctr ON B.center_id=Ctr.id
-			WHERE B.year=$year AND L.status='1' AND B.status='1' AND Ctr.status='1' AND "
+			WHERE B.year=$year AND L.status='1' AND B.status='1' AND Ctr.status='1' AND B.project_id=$project_id AND "
 			. implode(' AND ', $checks)
 			. " ORDER BY C.class_on DESC");
 

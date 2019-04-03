@@ -38,7 +38,7 @@ if(!$data) {
 			. implode(' AND ', $sql_checks) . " ORDER BY C.class_on DESC");
 
 	foreach ($all_centers_in_city as $this_center_id) {
-		if($format != 'csv') $data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer');
+		if($format != 'csv') $data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'volunteer', $project_id);
 		$center_data = $data_template;
 		$annual_data = $template_array;
 

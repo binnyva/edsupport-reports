@@ -1,9 +1,9 @@
 <?php
-function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, $data_type) {
-	list($adoption_data, $cache_key) = getCacheAndKey('adoption_data', array($city_id, $center_id, $data_type));
+function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_centers, $data_type, $project_id) {
+	list($adoption_data, $cache_key) = getCacheAndKey('adoption_data', array($city_id, $center_id, $data_type, $project_id));
 
 	if(!$adoption_data) {
-		$adoption_data = getAdoptionData($city_id, $center_id, $all_cities, $all_centers);
+		$adoption_data = getAdoptionData($city_id, $center_id, $all_cities, $all_centers, $project_id);
 		setCache($cache_key, $adoption_data);
 	}
 
@@ -31,7 +31,7 @@ function getAdoptionDataPercentage($city_id, $center_id, $all_cities, $all_cente
 
 	return $percent;
 }
-function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
+function getAdoptionData($city_id, $center_id, $all_cities, $all_centers, $project_id) {
 	global $sql, $year;
 
 	$days = array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
@@ -48,7 +48,7 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers) {
 	if($city_id) $city_check = " AND C.city_id=$city_id";
 	$batches = $sql->getAll("SELECT B.id, B.day, B.class_time, B.center_id, C.city_id 
 			FROM Batch B INNER JOIN Center C ON C.id=B.center_id 
-			WHERE B.year=$year AND B.status='1' AND C.status='1' $city_check $center_check ");
+			WHERE B.year=$year AND B.status='1' AND C.status='1' AND B.project_id=$project_id $city_check $center_check ");
 	
 	foreach ($batches as $b) {
 		$batch_id = $b['id'];
