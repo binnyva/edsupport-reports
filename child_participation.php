@@ -36,7 +36,7 @@ if(!$data) {
 			. implode(' AND ', $sql_checks));
 
 	foreach ($all_centers_in_city as $this_center_id) {
-		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student');
+		$data[$this_center_id]['adoption'] = getAdoptionDataPercentage($city_id, $this_center_id, $all_cities, $all_centers, 'student', $project_id);
 		$center_data = array($template_array, $template_array, $template_array, $template_array);
 		$annual_data = $template_array;
 
