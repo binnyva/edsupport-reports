@@ -1,5 +1,5 @@
 <?php
-// if((i($QUERY,'format') == 'csv') or (i($QUERY,'file'))) 
+if((i($QUERY,'format') == 'csv') or (i($QUERY,'file'))) 
 	$config['single_user'] = 1; // :DEBUG: should be under the if clause.
 $rel = dirname(__FILE__);
 require($rel . '/../../support/includes/application.php');
@@ -15,6 +15,7 @@ $html = new HTML;
 $all_cities = $sql->getById("SELECT id,name FROM City WHERE type='actual' ORDER BY name");
 $all_cities[0] = 'Any';
 $all_centers = $sql->getById("SELECT id,name,city_id FROM Center WHERE status='1'");
+$all_projects = $sql->getById("SELECT id,name FROM Project WHERE status='1'");
 
 $week_dates = array(); // Last four sundays
 for($i=0; $i<40; $i++) {

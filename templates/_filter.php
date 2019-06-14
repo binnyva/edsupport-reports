@@ -15,7 +15,7 @@ var centers = <?php echo json_encode($centers); ?>;
 <?php
 $html->buildInput("city_id", 'City', 'select', $city_id, array('options' => $all_cities));
 $html->buildInput("center_id", 'Center', 'select', $center_id, array('options' => $centers[$city_id]));
-$html->buildInput("project_id", 'Program', 'select', $project_id, array('options' => [1 => 'Ed Support', 2 => 'Foundational']));
+$html->buildInput("project_id", 'Program', 'select', $project_id, array('options' => $all_projects));
 ?>
 <div id="select-date-area">
 <?php
