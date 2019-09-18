@@ -1,8 +1,11 @@
 <?php
 if((i($QUERY,'format') == 'csv') or (i($QUERY,'file'))) 
 	$config['single_user'] = 1; // :DEBUG: should be under the if clause.
+accessControl([]);
+
 $rel = dirname(__FILE__);
-require($rel . '/../../support/includes/application.php');
+$year = get_year();
+
 $sql->options['stripslashes'] = false;
 
 require($rel . '/adoption.php');
@@ -94,3 +97,14 @@ function findSundayDate($class_on) {
 	$sunday = date('Y-m-d', $day - (60 * 60 * 24 * date('w', $day)));
 	return $sunday;
 }
+
+function color() {
+	static $index = 0;
+	//$col = array('#EEA2AD', '#4876FF', '#1E90FF', '#00BFFF', '#00FA9A', '#76EE00','#CD950C', '#FFDEAD', '#EED5B7', '#FFA07A', '#FF6347', '#EE6363', '#71C671');
+	$col = array('#f1632a','#ffe800','#282829','#22bbb8','#7e3f98','#54b847','#f1632a','#ffe800','#282829','#22bbb8','#7e3f98','#54b847','#e5002f');
+	$index++;
+
+	if($index >= count($col)) $index = 0;
+	return $col[$index];
+} 
+
