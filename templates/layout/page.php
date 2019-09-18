@@ -37,6 +37,5 @@
 <script src="<?php echo $config['site_home'] ?>js/application.js" type="text/javascript"></script>
 <?php echo $js_includes; ?>
 
-<script type="text/javascript" src="http://makeadiff.in/madapp/js/uservoice.js"></script>
 </body>
 </html>
