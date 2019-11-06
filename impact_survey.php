@@ -1,28 +1,30 @@
 <?php
 require 'common.php';
 
-$from_date = i($QUERY, 'from_date', false);
-$to_date = i($QUERY, 'to_date', false);
-$city_id = i($QUERY, 'city_id', 1);
+$from = i($QUERY, 'from', false);
+$to = i($QUERY, 'to', false);
+$city_id = i($QUERY, 'city_id', 0);
 $center_id = i($QUERY, 'center_id', 0);
 $level_id = i($QUERY, 'level_id', 0);
 $student_id = i($QUERY, 'student_id', 0);
+$project_id = 0;
 
 $where = ["S.status='1' AND C.status='1'"];
-if($from_date) $where['from_date'] = "DATE(R.added_on) >= '$from_date'";
-if($to_date) $where['to_date'] = "DATE(R.added_on) < '$to_date'";
+if($from) $where['from'] = "DATE(R.added_on) >= '$from'";
+if($to) $where['to'] = "DATE(R.added_on) < '$to'";
 if($city_id) $where['city_id'] = "C.city_id = $city_id";
 if($center_id) $where['center_id'] = "S.center_id = $center_id";
 if($student_id) $where['student_id'] = "S.id = $student_id";
 
-$data = $sql->getAll("SELECT S.id, R.user_id, R.added_on, R.question_id, R.response 
+$data_sql = "SELECT S.id, R.user_id, R.added_on, R.question_id, R.response 
 						FROM IS_Response R
 						INNER JOIN Student S ON S.id = R.student_id
 						INNER JOIN Center C ON S.center_id = C.id
-						WHERE " . implode(" AND ", $where));
+						WHERE " . implode(" AND ", $where);
+$data = $sql->getAll($data_sql);
 
-unset($where['from_date']);
-unset($where['to_date']);
+unset($where['from']);
+unset($where['to']);
 $all_students = $sql->getById("SELECT S.id, S.name FROM Student S
 								INNER JOIN Center C ON S.center_id = C.id
 								WHERE " . implode(" AND ", $where));
@@ -42,13 +44,18 @@ foreach ($data as $row) {
 }
 
 $avg = [];
+$text = '<dl>';
 for($i=1; $i<7; $i++) {
 	$avg[$i] = round($responses[$i] / $totals[$i], 2);
 
-	print $all_questions[$i] . " : " . $avg[$i]. "<br />";
+	$text .= "<dt>" . $all_questions[$i] . "</dt><dd>" . $avg[$i]. "</dd>";
 }
-
-dump($totals, $responses, count($teachers));
-
+$text .= "</dl>"; // . $data_sql;
 
 # data for 2018-19 required for DXC reporting  Number of teachers who filled the impact survey  ,motivation% ,self esteem% ,perseverance% ,comprehension% , knowledge of fundamentals% ,exam readiness %
+
+$files = [];
+$show_filter = 1;
+$title = 'Impact Survey Report';
+
+render('index.php');
