@@ -13,9 +13,14 @@ $page_title = 'Check For Understanding';
 list($data, $cache_key) = getCacheAndKey('data', $opts);
 $year = findYear($opts['to']);
 
-$output_data_format = 'percentage';
+$max_value = 5; //For Graph
+
+// $output_data_format = 'percentage';
+$output_data_format = 'average';
 if($format == 'csv') $output_data_format = 'check_for_understanding';
 $output_total_format = 'total_class';
+
+// Check for Understanding
 
 if(!$data) {
 	$data = array();
@@ -23,18 +28,31 @@ if(!$data) {
 	if($center_id == -1) $all_centers_in_city = $sql->getCol("SELECT id FROM Center WHERE city_id=$city_id AND status='1'");
 	else $all_centers_in_city = array($center_id);
 
-	$template_array = array('total_class' => 0, 'check_for_understanding' => 0, 'marked' => 0, 'unmarked' => 0,'percentage' => 0);
+	$template_array = array(
+		'total_class' => 0, 
+		'check_for_understanding' => 0, 
+		'marked' => 0, 
+		'unmarked' => 0,
+		'percentage' => 0,		
+		//Adding Scales for Average Calculation for 1-5 Scale
+		'average' => 0,
+		'1'=>0,	
+		'2'=>0,	
+		'3'=>0,	
+		'4'=>0,	
+		'5'=>0	
+	);
 	$data_template = array($template_array, $template_array, $template_array, $template_array);
 	$national = $data_template;
 
-	$all_classes = $sql->getAll("SELECT SC.id, C.status, SC.check_for_understanding, C.class_on, B.center_id, Ctr.city_id
+	$all_classes = $sql->getAll("SELECT SC.id, C.status, SC.check_for_understanding, C.class_on, B.center_id, Ctr.city_id, C.status
 				FROM Class C
 				INNER JOIN Batch B ON B.id=C.batch_id
 				INNER JOIN Center Ctr ON B.center_id=Ctr.id
 				INNER JOIN StudentClass SC ON SC.class_id=C.id
 				WHERE B.year=$year AND "
 				. implode(' AND ', $sql_checks)
-				. " ORDER BY C.class_on DESC");
+				. " ORDER BY C.class_on DESC");	
 
 	if($format != 'csv') {
 		foreach ($all_classes as $c) {
@@ -47,11 +65,15 @@ if(!$data) {
 			if($c['status'] == 'projected') $national[$index]['unmarked']++;
 			elseif($c['status'] != 'projected') {
 				$national[$index]['marked']++;
-				if($c['check_for_understanding']) $national[$index]['check_for_understanding']++;
+				// Archived Code for 0-1 Scale if($c['check_for_understanding']) $national[$index]['check_for_understanding']++;
+				if($c['check_for_understanding']) $national[$index]['check_for_understanding'] += $c['check_for_understanding'];
 			}
 		}
 		foreach($national as $index => $value) {
-			if($national[$index]['marked']) $national[$index]['percentage'] = round($national[$index]['check_for_understanding'] / $national[$index]['marked'] * 100, 2);
+			// if($national[$index]['marked']) $national[$index]['percentage'] = round($national[$index]['check_for_understanding'] / $national[$index]['marked'] * 100, 2); Archived Code for 0-1 Scale
+
+			if($national[$index]['marked']) 
+				$national[$index]['average'] = round($national[$index]['check_for_understanding'] / $national[$index]['marked'], 2);
 		}
 	}
 
@@ -72,35 +94,46 @@ if(!$data) {
 				$center_data[$index]['total_class']++;
 
 				if($c['status'] == 'projected') $center_data[$index]['unmarked']++;
-				elseif($c['status'] != 'projected') {
+				elseif($c['status'] == 'happened') { //Checking data for classes that happened.
 					$center_data[$index]['marked']++;
 					$annual_data['marked']++;
 
 					if($c['check_for_understanding']) {
 						$annual_data['check_for_understanding']++;
-						$center_data[$index]['check_for_understanding']++;
+						$annual_data[$c['check_for_understanding']]++;
+						// $center_data[$index]['check_for_understanding']++; Archived Code for 0-1 Scale
+						$center_data[$index]['check_for_understanding']+= $c['check_for_understanding']; 
+						$center_data[$index][$c['check_for_understanding']]++;
 					}
 				}
 			}
 		}
 
 		foreach($center_data as $index => $value) {
-			if($center_data[$index]['marked']) $center_data[$index]['percentage'] = round($center_data[$index]['check_for_understanding'] / $center_data[$index]['marked'] * 100, 2);
+			// if($center_data[$index]['marked']) $center_data[$index]['percentage'] = round($center_data[$index]['check_for_understanding'] / $center_data[$index]['marked'] * 100, 2); Archived Code for 0-1 Scale
+			if($center_data[$index]['marked']) 
+				$center_data[$index]['average'] = round($center_data[$index]['check_for_understanding'] / $center_data[$index]['marked'], 2);
 		}
-		if($annual_data['marked']) $annual_data['percentage'] = round($annual_data['check_for_understanding'] / $annual_data['marked'] * 100, 2);
+
+		if($annual_data['marked']) 
+			$annual_data['percentage'] = round($annual_data['check_for_understanding'] / $annual_data['marked'] * 100, 2);
 
 		$weekly_graph_data = array(
-			array('Weekly ' . $page_title, '% of Understood Class', 'National Average'),
+			array('Weekly ' . $page_title, 'Average CFU', 'National Average'),
 			array(date('j M Y', strtotime($week_dates[3])), $center_data[3][$output_data_format], $national[3][$output_data_format]),
 			array(date('j M Y', strtotime($week_dates[2])), $center_data[2][$output_data_format], $national[2][$output_data_format]),
 			array(date('j M Y', strtotime($week_dates[1])), $center_data[1][$output_data_format], $national[1][$output_data_format]),
 			array(date('j M Y', strtotime($week_dates[0])), $center_data[0][$output_data_format], $national[0][$output_data_format])
 		);
+		
 
 		$annual_graph_data = array(
 				array('Year', '% of Understood Class'),
-				array('Classes Understood',	$annual_data['percentage']),
-				array('Classes NOT Understood',	100 - $annual_data['percentage']),
+				array('Rated 1',	$annual_data['1']/$annual_data['marked']),
+				array('Rated 2',	$annual_data['2']/$annual_data['marked']),
+				array('Rated 3',	$annual_data['3']/$annual_data['marked']),
+				array('Rated 4',	$annual_data['4']/$annual_data['marked']),
+				array('Rated 5',	$annual_data['5']/$annual_data['marked']),
 			);
 
 		$data[$this_center_id]['weekly_graph_data'] = $weekly_graph_data;
