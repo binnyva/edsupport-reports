@@ -9,14 +9,8 @@ if(!$city_id and !$center_id and
 		unset($weekly_graph_data[$i][2]);
 }
 
-?><script type="text/javascript"
-	  src="https://www.google.com/jsapi?autoload={
-		'modules':[{
-		  'name':'visualization',
-		  'version':'1',
-		  'packages':['corechart']
-		}]
-	  }"></script>
+?>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <h1><?php echo $page_title ?> Report</h1>
 
@@ -29,23 +23,27 @@ else echo '<p class="with-icon info">Real Time Data...</p>';
 <?php foreach ($data as $center_id => $center_data) { extract($center_data); ?>
 <script type="text/javascript">
 <?php if($weekly_graph_data) { ?>
-google.setOnLoadCallback(function() {
-var data = google.visualization.arrayToDataTable(<?php echo json_encode($weekly_graph_data); ?>);
+// Load the Visualization API and the corechart package.
+google.charts.load('current', {'packages':['corechart']});
 
-// :TODO: Highlight points of the graph
-var options = {
-	title: 'Weekly <?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
-	vAxis: {
-		viewWindow: {
-			max:<?php echo isset($max_value)? $max_value: '100' ?>,
-			min:0
-		}
-	},
-	colors: <?php echo json_encode($colors) ?>
-};
+// Set a callback to run when the Google Visualization API is loaded.
+google.charts.setOnLoadCallback(function() {
+	var data = google.visualization.arrayToDataTable(<?php echo json_encode($weekly_graph_data); ?>);
 
-var chart = new google.visualization.LineChart(document.getElementById('curve_chart_<?php echo $center_id ?>'));
-chart.draw(data, options);
+	// :TODO: Highlight points of the graph
+	var options = {
+		title: 'Weekly <?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
+		vAxis: {
+			viewWindow: {
+				max:100,
+				min:0
+			}
+		},
+		colors: <?php echo json_encode($colors) ?>
+	};
+
+	var chart = new google.visualization.LineChart(document.getElementById('curve_chart_<?php echo $center_id ?>'));
+	chart.draw(data, options);
 });
 <?php } ?>
 
@@ -53,7 +51,7 @@ google.setOnLoadCallback(function () {
 	var data = google.visualization.arrayToDataTable(<?php echo json_encode($annual_graph_data); ?>);
 
 	var options = {
-		title: 'Annual <?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
+		title: '<?php echo $page_title; if($center_name) echo " for " . addslashes($center_name); ?>',
 		slices: <?php 
 			$slice_colors = array();
 			for($i=0; $i<count($colors); $i++) $slice_colors[$i] = array('color' => $colors[$i]);
