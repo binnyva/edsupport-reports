@@ -35,7 +35,7 @@ function getOptions($QUERY) {
 	$city_id = i($QUERY,'city_id', 0);
 	$center_id = i($QUERY,'center_id', 0);
 	$from = i($QUERY,'from', $year . '-04-01');
-	$to = i($QUERY,'to', date('Y-m-d'));
+	$to = i($QUERY,'to', date('Y-m-d', strtotime('tomorrow')));
 	$format = i($QUERY, 'format', 'html');
 	$header = i($QUERY, 'header', '1');
 	$project_id = i($QUERY, 'project_id', '1');

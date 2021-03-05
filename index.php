@@ -7,6 +7,8 @@ $files = array(
 	'class_cancellations.php',
 	'substitutions.php',
 	'volunteer_credits.php',
-	'check_for_understanding.php');
+	'check_for_understanding.php',
+	'data_filled.php'
+);
 
 render();
