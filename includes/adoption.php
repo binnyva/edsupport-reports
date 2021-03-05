@@ -83,7 +83,8 @@ function getAdoptionData($city_id, $center_id, $all_cities, $all_centers, $proje
 				FROM Class C
 				INNER JOIN UserClass UC ON C.id=UC.class_id 
 				LEFT JOIN StudentClass SC ON C.id=SC.class_id 
-				WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND C.batch_id=$batch_id
+				INNER JOIN Level L ON L.id=C.level_id
+				WHERE C.class_on>'$year_start' AND C.class_on<'$year_end' AND L.year=$year AND L.status='1' AND C.batch_id=$batch_id
 				GROUP BY C.id");
 
 		$class_done = array();

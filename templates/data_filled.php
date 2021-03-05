@@ -5,13 +5,11 @@ include('_filter.php');
 $percentage_colors = array('#e74c3c', '#16a085'); // Red , Green
 ?>
 
-
 <h3>Total Classes: <?php echo $data['total_classes'] ?></h3>
 
 <h4>Teacher Attendance Data Filled: <?php 
 echo $data['teacher_data_filled'];
 $percentage = round($data['teacher_data_filled'] / $data['total_classes'] * 100);
-echo " ($percentage)";
 ?></h4>
 <p>This data is entered by the mentor</p>
 <div class="progress">
@@ -22,7 +20,6 @@ echo " ($percentage)";
 <h4>Student Attendance Data Filled: <?php 
 echo $data['student_data_filled'];
 $percentage = round($data['student_data_filled'] / $data['total_classes'] * 100);
-echo " ($percentage)";
 ?></h4>
 <p>This data is entered by the teacher</p>
 <div class="progress">
