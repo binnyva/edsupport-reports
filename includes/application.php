@@ -86,7 +86,7 @@ function findYear($date = false) {
 
 	$this_month = intval(date('m', $base_date));
 	$months = array();
-	$start_month = 5; // May
+	$start_month = 6;
 	$start_year = date('Y', $base_date);
 	if($this_month < $start_month) $start_year = date('Y', $base_date) -1;
 	return $start_year;
