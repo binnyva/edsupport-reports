@@ -39,14 +39,14 @@ if(!$data) {
 		$centers_to_check = $all_centers_in_city;
 	}
 
-	if(!$centers_to_check) exit;
+	if(!$centers_to_check) die("No Shelters found.");
 
 	$level_data = $sql->getById("SELECT L.id, COUNT(SL.id) as student_count 
 		FROM Level L 
 		INNER JOIN StudentLevel SL ON SL.level_id=L.id 
 		WHERE L.center_id IN (" .implode(",", $centers_to_check). ") AND L.status='1' AND L.year='$year' AND L.project_id=$project_id
 		GROUP BY SL.level_id");
-	if(!$level_data) exit;
+	if(!$level_data) die("Didn't find any levels");
 
 	$students = $sql->getById("SELECT SC.class_id, COUNT(SC.id) AS total_count, SUM(CASE WHEN SC.present='1' THEN 1 ELSE 0 END) AS present
 		FROM StudentClass SC 
